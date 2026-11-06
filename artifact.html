@@ -182,9 +182,12 @@ h1, h2, h3 { margin: 0; text-wrap: balance; line-height: 1.2; }
 /* Dots exercise */
 .dotword { position: relative; width: 100%; padding-block: 48px 52px; overflow: hidden; }
 .dw-text { font-family: var(--font-fa); direction: rtl; font-weight: 600; white-space: nowrap; text-align: center; line-height: 1; display: block; }
-.dw-text .ch { display: inline; }
-.dw-text .ch.slot { color: var(--muted); }
-.dw-text .ch.slot.ok { color: var(--turq); } .dw-text .ch.slot.bad { color: var(--pom); }
+.dw-text.ok { color: var(--turq); } .dw-text.bad { color: var(--pom); }
+.dw-bar { position: absolute; height: 4px; border-radius: 2px; background: var(--muted); opacity: .45; }
+.dw-bar.ok { background: var(--turq); opacity: 1; } .dw-bar.bad { background: var(--pom); opacity: 1; }
+.rush-word { position: relative; }
+.rush-hl { position: absolute; border-radius: 10px; background: var(--accent-soft); pointer-events: none; }
+.rush-hl.ok { background: var(--turq-soft); } .rush-hl.bad { background: var(--pom-soft); }
 .dw-overlay { position: absolute; inset: 0; pointer-events: none; }
 .dw-zone { position: absolute; pointer-events: auto; background: transparent; border: 0; padding: 0; border-radius: 8px; }
 .dw-zone:active { background: var(--accent-soft); }
@@ -705,8 +708,10 @@ RENDER.dots = (ex, area) => {
   const d = ex.data; const parts = analyze(d.word); const slots = parts.map((p, i) => p.slot ? i : -1).filter(i => i >= 0);
   const state = {}; slots.forEach(i => state[i] = { side: null, n: 0 });
   const box = h('div', { class: 'dotword' }); const text = h('div', { class: 'dw-text', lang: 'fa' }); const overlay = h('div', { class: 'dw-overlay' });
-  const spans = parts.map((p, i) => { const s = h('span', { class: 'ch' + (p.slot ? ' slot' : '') }, p.slot ? p.skel : p.ch); text.appendChild(s); return s; });
+  // One text node, so Safari shapes the letters together; per-letter geometry comes from Range measurements.
+  const tn = document.createTextNode(parts.map(p => p.slot ? p.skel : p.ch).join('')); text.appendChild(tn);
   const bl = h('span', { style: 'display:inline-block;width:0;height:0' }); text.appendChild(bl);
+  const charRect = i => { const rg = document.createRange(); rg.setStart(tn, i); rg.setEnd(tn, i + 1); return rg.getBoundingClientRect(); };
   box.append(text, overlay);
   area.append(h('h2', null, 'Mets les points'), h('div', { class: 'center' }, bigPlay(d.word), h('div', { class: 'q-fr' }, '« ' + d.fr + ' » · Les lettres grises ont perdu leurs points. Remets-les.')), box, h('div', { class: 'dw-hint' }, 'Touche au-dessus d’une lettre grise pour des points en haut, en dessous pour des points en bas. Chaque touche ajoute un point ; au quatrième, ça revient à zéro.'));
   let fs = 76, checked = false;
@@ -717,10 +722,14 @@ RENDER.dots = (ex, area) => {
   }
   function draw() {
     overlay.innerHTML = ''; const bb = box.getBoundingClientRect(); const baseY = bl.getBoundingClientRect().top - bb.top;
-    const rects = spans.map(s => s.getBoundingClientRect()); const centers = rects.map(r => (r.left + r.right) / 2 - bb.left);
+    const rects = parts.map((p, i) => charRect(i)); const centers = rects.map(r => (r.left + r.right) / 2 - bb.left);
     slots.forEach(i => {
       const p = parts[i], st = state[i]; const cx = centers[i];
-      const prev = i > 0 ? centers[i - 1] : null, nxt = i < spans.length - 1 ? centers[i + 1] : null;
+      const prev = i > 0 ? centers[i - 1] : null, nxt = i < parts.length - 1 ? centers[i + 1] : null;
+      // a faint bar under each letter that is missing its dots, so the letter count is visible
+      const bar = h('span', { class: 'dw-bar' + (checked ? (st.ok ? ' ok' : ' bad') : '') });
+      Object.assign(bar.style, { left: (rects[i].left - bb.left + 2) + 'px', width: Math.max(10, rects[i].width - 4) + 'px', top: (baseY + 0.42 * fs) + 'px' });
+      overlay.appendChild(bar);
       // in RTL, the previous letter sits to the right
       let left = nxt !== null ? (cx + nxt) / 2 : rects[i].left - bb.left - 10; let right = prev !== null ? (cx + prev) / 2 : rects[i].right - bb.left + 10;
       if (right - left < 30) { left = cx - 15; right = cx + 15; }
@@ -742,7 +751,7 @@ RENDER.dots = (ex, area) => {
   const r = {
     check() {
       let ok = true; slots.forEach(i => { const p = parts[i], st = state[i]; const a = st.side === 'above' ? st.n : 0, b = st.side === 'below' ? st.n : 0; st.ok = (a === p.above && b === p.below); if (!st.ok) ok = false; });
-      checked = true; slots.forEach(i => { spans[i].textContent = parts[i].ch; spans[i].classList.add(state[i].ok ? 'ok' : 'bad'); }); overlay.innerHTML = '';
+      checked = true; tn.nodeValue = parts.map(p => p.ch).join(''); text.classList.add(ok ? 'ok' : 'bad'); draw();
       const wrong = slots.filter(i => !state[i].ok).map(i => parts[i].ch);
       return { ok, correct: ok ? null : d.word, note: ok ? 'Chaque point au bon endroit.' : 'À revoir : ' + wrong.map(c => '<span class="fa">' + esc(c) + '</span>').join(' ') + '. Compte les points et regarde de quel côté ils vont.' };
     },
@@ -887,11 +896,13 @@ function startRush() {
     if (!running) return; locked = false;
     let word; do { word = pick(pool); } while (word === lastWord && pool.length > 1); lastWord = word;
     const parts = analyze(word); const slots = parts.map((p, i) => p.slot ? i : -1).filter(i => i >= 0); const si = pick(slots); const p = parts[si];
-    wordEl.innerHTML = ''; parts.forEach((q, i) => { const s = h('span', { class: i === si ? 'gap' : '' }, i === si ? q.skel : q.ch); wordEl.appendChild(s); });
-    const gapEl = wordEl.children[si];
+    wordEl.innerHTML = ''; const hl = h('span', { class: 'rush-hl' }); const tn = document.createTextNode(parts.map((q, i) => i === si ? q.skel : q.ch).join('')); wordEl.append(hl, tn);
+    const placeHl = () => { const rg = document.createRange(); rg.setStart(tn, si); rg.setEnd(tn, si + 1); const r = rg.getBoundingClientRect(), b = wordEl.getBoundingClientRect(); Object.assign(hl.style, { left: (r.left - b.left - 4) + 'px', top: (r.top - b.top) + 'px', width: (r.width + 8) + 'px', height: r.height + 'px' }); };
+    requestAnimationFrame(placeHl);
+    const gapEl = { set(ch, cls) { tn.nodeValue = parts.map((q, i) => i === si ? ch : q.ch).join(''); hl.classList.add(cls); placeHl(); } };
     const cands = shuffle(p.cands.filter(c => c !== p.ch)).slice(0, 2).concat([p.ch]);
     opts.innerHTML = '';
-    shuffle(cands).forEach(c => { const b = h('button', { class: 'opt', type: 'button' }, c); b.addEventListener('click', () => { if (locked) return; locked = true; if (c === p.ch) { combo = Math.min(4, combo + (best >= 2 ? 1 : 0)); best++; score += 10 * combo; gapEl.textContent = p.ch; gapEl.classList.add('ok'); b.classList.add('ok'); setTimeout(round, 260); } else { combo = 1; best = 0; gapEl.textContent = p.ch; gapEl.classList.add('bad'); b.classList.add('bad'); [...opts.children].forEach(o => { if (o.textContent === p.ch) o.classList.add('ok'); }); setTimeout(round, 900); } sScore.textContent = String(score); sCombo.textContent = '×' + combo; }); opts.appendChild(b); });
+    shuffle(cands).forEach(c => { const b = h('button', { class: 'opt', type: 'button' }, c); b.addEventListener('click', () => { if (locked) return; locked = true; if (c === p.ch) { combo = Math.min(4, combo + (best >= 2 ? 1 : 0)); best++; score += 10 * combo; gapEl.set(p.ch, 'ok'); b.classList.add('ok'); setTimeout(round, 260); } else { combo = 1; best = 0; gapEl.set(p.ch, 'bad'); b.classList.add('bad'); [...opts.children].forEach(o => { if (o.textContent === p.ch) o.classList.add('ok'); }); setTimeout(round, 900); } sScore.textContent = String(score); sCombo.textContent = '×' + combo; }); opts.appendChild(b); });
   }
   function end() {
     running = false; clearInterval(timer); const isBest = score > S.rushBest; if (isBest) S.rushBest = score; if (score >= 200) S.badges.rush = true; const xp = Math.min(20, Math.round(score / 10)); if (xp) addXP(xp); save();
