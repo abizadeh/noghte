@@ -578,15 +578,17 @@ function runExercises(items, opts) {
     btn.addEventListener('click', () => {
       const res = r.check(); const first = !answeredFirst[ex.__id || (ex.__id = Math.random())];
       answeredFirst[ex.__id] = true; if (first) opts.onAnswer(ex, res.ok);
-      if (!res.ok && !opts.placement) retry.push(ex);
+      if (!res.ok && !opts.placement && !retry.includes(ex)) retry.push(ex);
       inner.innerHTML = ''; bar.classList.add(res.ok ? 'good' : 'bad');
       const fb = h('div', { class: 'fb ' + (res.ok ? 'good' : 'bad') });
       const word = res.ok ? pick(C.feedback.good) : C.feedback.bad[0];
       fb.appendChild(h('div', { class: 'fb-title' }, h('span', { class: 'fa' }, word), res.ok ? 'Bien joué' : 'Pas tout à fait'));
       if (res.correct) fb.appendChild(h('div', { class: 'fb-body' }, 'Réponse : ', h('span', { class: 'fa' }, res.correct)));
       if (res.note && !opts.placement) fb.appendChild(h('div', { class: 'fb-body', html: res.note }));
+      if (!res.ok && !opts.placement) fb.appendChild(h('div', { class: 'fb-body muted' }, 'Tu peux réessayer tout de suite. Dans tous les cas, cet exercice revient à la fin de la leçon.'));
       inner.appendChild(fb); play(word);
-      inner.appendChild(h('button', { class: 'btn ' + (res.ok ? 'turq' : 'pom'), type: 'button', onclick: () => next() }, 'Continuer'));
+      if (res.ok || opts.placement) inner.appendChild(h('button', { class: 'btn ' + (res.ok ? 'turq' : 'pom'), type: 'button', onclick: () => next() }, 'Continuer'));
+      else { inner.appendChild(h('button', { class: 'btn pom', type: 'button', onclick: () => show(ex) }, 'Réessayer')); inner.appendChild(h('button', { class: 'btn ghost', type: 'button', onclick: () => next() }, 'Passer, je le reverrai à la fin')); }
       if (res.ok && ex.type === 'dots') { S.dotsOk++; if (S.dotsOk >= 10) S.badges.dots10 = true; save(); }
     });
     if (r.onShow) r.onShow();
@@ -853,7 +855,8 @@ function renderKaraoke(l) {
   // align TTS word boundaries to lyric tokens
   let times = null;
   if (T && T.words && T.words.length) {
-    const tw = T.words.map(w => ({ t: w.t, d: w.d, text: w.w.replace(/[«»:؟!.،]/g, '').replace(/‌/g, '') }));
+    const strip = s => s.replace(/[«»:؟!.،]/g, '').replace(/‌/g, '').replace(/[ً-ْٰ]/g, '');
+    const tw = T.words.map(w => ({ t: w.t, d: w.d, text: strip(w.w) }));
     times = new Array(kws.length).fill(null); let j = 0;
     for (let i = 0; i < tw.length && j < kws.length; i++) { const a = tw[i].text, b = kws[j].text; if (a === b || b.startsWith(a) || a.startsWith(b) || b.includes(a)) { times[j] = tw[i]; j++; } }
     const assigned = times.filter(Boolean).length;
