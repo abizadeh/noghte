@@ -146,7 +146,8 @@ audio_map = {}
 for t in items:
     p = os.path.join(AUDIO_DIR, h(t) + ".mp3")
     if os.path.exists(p) and os.path.getsize(p) > 1000:
-        audio_map[t] = "audio/" + h(t) + ".mp3"
+        # version tag from the spoken text, so a regenerated clip bypasses any cached copy
+        audio_map[t] = "audio/" + h(t) + ".mp3?v=" + h(items[t] + "|" + tts_text(t))[:6]
 print(f"{len(audio_map)} clips available")
 
 kt = {}
@@ -156,7 +157,7 @@ for kid in C["karaoke"]:
         with open(tpath, encoding="utf-8") as f:
             data = json.load(f)
         words = data["words"] if isinstance(data, dict) else data
-        kt[kid] = {"src": "audio/karaoke_" + kid + ".mp3", "words": words}
+        kt[kid] = {"src": "audio/karaoke_" + kid + ".mp3?v=" + h(data.get("tts", "") if isinstance(data, dict) else "")[:6], "words": words}
 
 with open(os.path.join(HERE, "content.js"), "w", encoding="utf-8") as f:
     f.write("window.CONTENT = " + json.dumps(C, ensure_ascii=False) + ";\n")
