@@ -10,16 +10,9 @@ VOICES = {"dilara": "fa-IR-DilaraNeural", "farid": "fa-IR-FaridNeural"}
 
 # word shown to the learner -> candidate (text the voice reads, voice)
 GROUPS = [
-    ("کشک", "kashk", [("کشک", "dilara"), ("کَشک", "dilara"), ("کَشْک", "dilara"), ("کَشک", "farid"), ("کَشْک", "farid")]),
-    ("لبنیات", "labaniyāt", [("لبنیات", "dilara"), ("لَبَنیات", "dilara"), ("لَبَنِیات", "dilara"), ("لَبَنِیّات", "dilara"), ("لَبَنِیات", "farid")]),
-    ("منتظر", "montazer", [("منتظر", "dilara"), ("مُنتَظِر", "dilara"), ("مُنْتَظِر", "dilara"), ("مُنتَظِرْ", "dilara"), ("مُنتَظِر", "farid"), ("منتظر", "farid")]),
-    ("بنابراین", "banābarin", [("بنابراین", "dilara"), ("بَنابَراین", "dilara"), ("بَنابَر این", "dilara"), ("بنابراین", "farid")]),
-    ("جعبه‌ای", "ja'be-i", [("جعبه‌ای", "dilara"), ("جعبه ای", "dilara"), ("جَعبه ای", "dilara"), ("جَعبِه‌ای", "dilara"), ("جعبه‌ای", "farid")]),
-    ("خونه", "khune (maison)", [("خونه", "dilara"), ("خونِه", "dilara"), ("خونه", "farid"), ("خونِه", "farid"), ("می‌خوام برم خونه.", "dilara")]),
-    ("عدس‌پلو", "adas-polo", [("عدس‌پلو", "dilara"), ("عَدَس پُلو", "dilara"), ("عَدَسْ پُلو", "dilara"), ("عَدَس‌پُلو", "dilara"), ("عَدَس پُلو", "farid")]),
-    ("تعارف", "ta'ārof", [("تعارف", "dilara"), ("تَعارُف", "dilara"), ("تَعارُف", "farid")]),
-    ("مهمونی", "mehmuni", [("مهمونی", "dilara"), ("مِهمونی", "dilara"), ("مِهمونی", "farid")]),
-    ("گیاه‌خوار", "giyāh-khār", [("گیاه‌خوار", "dilara"), ("گیاه خوار", "dilara"), ("گیاهخوار", "dilara"), ("گیاه‌خوار", "farid")]),
+    # round 2: the h of گیاه must be heard before خوار
+    ("گیاه‌خوار", "giyāh-khār", [("گیاهْ‌خوار", "dilara"), ("گیاهْ خوار", "dilara"), ("گیاح‌خوار", "dilara"), ("گیاح خوار", "dilara"), ("گیاهْ‌خوار", "farid"), ("گیاح‌خوار", "farid"), ("گیاهه خوار", "dilara")]),
+    ("من گیاه‌خوارم.", "man giyāh-khāram", [("من گیاهْ‌خوارَم.", "dilara"), ("من گیاح‌خوارَم.", "dilara"), ("من گیاهْ‌خوارَم.", "farid"), ("من گیاح‌خوارَم.", "farid")]),
 ]
 
 def h(s):

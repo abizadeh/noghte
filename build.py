@@ -22,13 +22,23 @@ def h(text):
 # The display text stays unvowelled (that is what the learner must read). The voice gets a
 # vowelled version where the plain spelling is ambiguous, plus a space before a suffix alef
 # after a half-space (جعبه‌ای), which the voice otherwise runs together.
+# A map value is either the vowelled text, or {"text": ..., "voice": "male"|"default"} when the
+# isolated word clip should use a particular voice (sentences keep their own voice).
+def tts_spelling(key):
+    v = TTS[key]
+    return v["text"] if isinstance(v, dict) else v
+
+def tts_voice(text):
+    v = TTS.get(text)
+    return v.get("voice") if isinstance(v, dict) else None
+
 _keys = sorted(TTS, key=len, reverse=True)
 _pat = re.compile("(?<![؀-ۿ])(" + "|".join(re.escape(k) for k in _keys) + ")(?![؀-ۿ])") if _keys else None
 
 def tts_text(text):
     t = text
     if _pat:
-        t = _pat.sub(lambda m: TTS[m.group(1)], t)
+        t = _pat.sub(lambda m: tts_spelling(m.group(1)), t)
     t = re.sub(ZWNJ + "(?=ا)", " ", t)
     t = re.sub(r"[\U0001F300-\U0001FAFF☀-➿]", "", t)  # emoji
     return t.strip()
@@ -77,6 +87,9 @@ for ch in C["chats"].values():
 for k in C["feedback"]["good"] + C["feedback"]["bad"]:
     add(k)
 
+for t in list(items):
+    if tts_voice(t):
+        items[t] = tts_voice(t)
 print(f"{len(items)} audio strings")
 
 manifest = {}
