@@ -301,6 +301,9 @@ input.fa { font-family: var(--font-fa); font-size: 1.4rem; }
 .ex-list .item .ic { width: 40px; height: 40px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; flex: none; }
 .ex-list .item .ic svg { width: 22px; height: 22px; }
 .ex-list .item.locked { opacity: .55; }
+.flaglist { display: flex; flex-direction: column; gap: 8px; }
+.flagrow { border-top: 1px solid var(--line); padding-top: 8px; font-size: .95rem; }
+.flagrow .fa { font-size: 1.05rem; }
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(96px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-weight: 700; z-index: 30; animation: up .2s ease-out; }
 </style>
 
@@ -315,7 +318,7 @@ const $app = document.getElementById('app');
 const DAILY_GOAL = 30;
 
 /* ---------- state ---------- */
-const DEFAULT = { name: '', interests: [], placed: false, skills: { points: 0, orthographe: 0, registre: 0, vocabulaire: 0 }, baseRank: 800, done: {}, learned: {}, xp: 0, xpToday: 0, today: '', streak: 0, lastActive: '', rushBest: 0, dotsOk: 0, badges: {}, demo: false };
+const DEFAULT = { name: '', interests: [], placed: false, skills: { points: 0, orthographe: 0, registre: 0, vocabulaire: 0 }, baseRank: 800, done: {}, learned: {}, xp: 0, xpToday: 0, today: '', streak: 0, lastActive: '', rushBest: 0, dotsOk: 0, badges: {}, demo: false, flags: [] };
 let S = load();
 function load() { try { const s = JSON.parse(localStorage.getItem('noghte_v1') || 'null'); if (s) return Object.assign({}, DEFAULT, s); } catch (e) {} return Object.assign({}, DEFAULT); }
 function save() { try { localStorage.setItem('noghte_v1', JSON.stringify(S)); } catch (e) {} }
@@ -370,8 +373,40 @@ const ICON = {
   home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>',
   rush: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="7" r="2.5"/><circle cx="12" cy="17" r="2.5"/><path d="M7 7l5 10 5-10" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
   user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>',
-  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>'
+  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+  flag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"/><path d="M5 4h12l-2.5 4L17 12H5"/></svg>'
 };
+
+/* ---------- flags: "Signaler" on any screen, collected on the phone, copied from the profile ---------- */
+const FLAG_REASONS = ['La prononciation', 'C’est confus', 'C’est faux', 'Trop facile', 'Trop dur', 'Autre'];
+function exLabel(ex) {
+  if (!ex) return '';
+  const d = ex.data || {};
+  const key = { pair: () => d.words && d.words[ex.promptIdx], dots: () => d.word, fixdots: () => d.correct, spell: () => d.word, register_mc: () => d.familier, register_build: () => d.familier, build: () => d.word && W[d.word] && W[d.word].fa, vocab: () => d.fa, vocab_check: () => d.fa, vocab_check_rev: () => d.fa, explain: () => d.title }[ex.type];
+  return ex.type + (key && key() ? ' : ' + key() : '');
+}
+function flagButton(ctx) { const b = h('button', { class: 'iconbtn', type: 'button', 'aria-label': 'Signaler un problème', title: 'Signaler', onclick: () => flagSheet(ctx) }); b.innerHTML = ICON.flag; return b; }
+function flagSheet(ctx) {
+  const bg = h('div', { class: 'sheet-bg', onclick: e => { if (e.target === bg) bg.remove(); } });
+  let reason = null; const chips = h('div', { class: 'chips' });
+  FLAG_REASONS.forEach(r => { const c = h('button', { class: 'chip', type: 'button', onclick: () => { reason = r; [...chips.children].forEach(x => x.classList.remove('on')); c.classList.add('on'); send.disabled = false; } }, r); chips.appendChild(c); });
+  const note = h('input', { type: 'text', id: 'flagnote', placeholder: 'Un mot de plus ? (facultatif)' });
+  const send = h('button', { class: 'btn', type: 'button', disabled: '', onclick: () => {
+    S.flags.push({ t: new Date().toISOString(), screen: ctx.screen || '', item: ctx.item || '', reason, note: note.value.trim() }); save(); bg.remove(); toast('Noté. Merci.'); } }, 'Noter');
+  const sh = h('div', { class: 'sheet' }, h('div', { class: 'handle' }),
+    h('div', { style: 'font-weight:800;font-size:1.15rem' }, 'Signaler un problème'),
+    h('div', { class: 'note' }, (ctx.screen || '') + (ctx.item ? ' · ' : ''), ctx.item ? h('span', { class: 'fa' }, ctx.item) : null),
+    chips, note, send,
+    h('div', { class: 'note' }, 'Les signalements restent sur ce téléphone. Ils se copient depuis Profil pour les envoyer.'),
+    h('button', { class: 'btn ghost', type: 'button', onclick: () => bg.remove() }, 'Annuler'));
+  bg.appendChild(sh); document.body.appendChild(bg);
+}
+function flagsText() { return S.flags.map(f => f.t.slice(0, 16).replace('T', ' ') + ' · ' + f.screen + (f.item ? ' · ' + f.item : '') + ' · ' + f.reason + (f.note ? ' · ' + f.note : '')).join('\n'); }
+function copyText(text, btn) {
+  const done = () => toast('Copié. Colle-le dans un message.');
+  const fallback = () => { const ta = h('textarea', { style: 'position:fixed;left:-9999px' }); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) { toast('Sélectionne le texte et copie-le.'); } ta.remove(); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done).catch(fallback); else fallback();
+}
 function svg(name, cls) { const s = h('span', { class: cls || '' }); s.innerHTML = ICON[name]; return s.firstChild; }
 function catSVG(size) {
   const el = document.createElement('div'); el.className = 'cat'; if (size) { el.style.width = size + 'px'; el.style.height = size + 'px'; }
@@ -565,7 +600,7 @@ function runExercises(items, opts) {
   function show(ex) {
     clear();
     const prog = h('div', { class: 'progress' }, h('i'));
-    const top = h('div', { class: 'lesson-top gutter' }, h('div', { class: 'lesson-top-inner' }, h('button', { class: 'iconbtn', type: 'button', 'aria-label': 'Quitter', onclick: () => { if (opts.placement) { S.placed = false; } render(); } }, svg('close')), prog));
+    const top = h('div', { class: 'lesson-top gutter' }, h('div', { class: 'lesson-top-inner' }, h('button', { class: 'iconbtn', type: 'button', 'aria-label': 'Quitter', onclick: () => { if (opts.placement) { S.placed = false; } render(); } }, svg('close')), prog, flagButton({ screen: opts.title, item: exLabel(ex) })));
     const done = n - queue.length - retry.length - 1; prog.firstChild.style.width = Math.round(100 * Math.max(0, done) / n) + '%';
     const area = h('div', { class: 'ex gutter' });
     const bar = h('div', { class: 'actionbar' }); const inner = h('div', { class: 'inner' }); bar.appendChild(inner);
@@ -796,7 +831,7 @@ function wordSpans(sentence, onTap) {
   return frag;
 }
 function screenTop(title, onBack) {
-  return h('div', { class: 'lesson-top gutter' }, h('div', { class: 'lesson-top-inner' }, h('button', { class: 'iconbtn', type: 'button', 'aria-label': 'Retour', onclick: onBack }, svg('back')), h('div', { class: 'grow', style: 'font-weight:800' }, title)));
+  return h('div', { class: 'lesson-top gutter' }, h('div', { class: 'lesson-top-inner' }, h('button', { class: 'iconbtn', type: 'button', 'aria-label': 'Retour', onclick: onBack }, svg('back')), h('div', { class: 'grow', style: 'font-weight:800' }, title), flagButton({ screen: title })));
 }
 function renderReading(l) {
   clear(); const R = C.readings[l.reading];
@@ -931,6 +966,10 @@ function renderProfile(v) {
       h('div', { class: 'card' }, h('div', { class: 'eyebrow' }, 'Couverture'), h('div', { class: 'bignum' }, Math.round(coverage() * 100) + '%'))),
     h('div', { class: 'card stack' }, h('div', { class: 'eyebrow' }, 'Compétences (test de départ)'), skillsBlock()),
     h('div', { class: 'stack' }, h('div', { class: 'eyebrow' }, 'Badges'), (() => { const g = h('div', { class: 'badges' }); C.badges.forEach(b => g.appendChild(h('div', { class: 'badge' + (S.badges[b.id] ? ' won' : '') }, h('div', { class: 'fa' }, b.fa), h('div', { style: 'font-weight:700' }, b.title), h('div', { class: 'muted', style: 'font-size:.85rem' }, b.desc)))); return g; })()),
+    h('div', { class: 'card stack' }, h('div', { class: 'eyebrow' }, 'Signalements (' + S.flags.length + ')'),
+      S.flags.length ? h('div', { class: 'flaglist' }, S.flags.slice().reverse().slice(0, 30).map(f => h('div', { class: 'flagrow' }, h('div', { class: 'muted', style: 'font-size:.8rem' }, f.t.slice(0, 16).replace('T', ' ') + ' · ' + f.screen), h('div', null, f.item ? h('span', { class: 'fa' }, f.item + ' · ') : null, h('b', null, f.reason), f.note ? ' · ' + f.note : '')))) : h('div', { class: 'muted' }, 'Rien pour l’instant. Le petit drapeau en haut de chaque écran sert à signaler un mot mal prononcé, un exercice confus, une erreur.'),
+      S.flags.length ? h('button', { class: 'btn', type: 'button', onclick: e => copyText(flagsText(), e.currentTarget) }, 'Copier les signalements') : null,
+      S.flags.length ? h('button', { class: 'btn ghost', type: 'button', onclick: () => { S.flags = []; save(); renderMain(); } }, 'Effacer les signalements') : null),
     h('div', { class: 'card stack' }, h('div', { class: 'eyebrow' }, 'Prototype'),
       h('button', { class: 'btn ghost', type: 'button', onclick: () => { S.demo = !S.demo; save(); toast(S.demo ? 'Tout est débloqué.' : 'Parcours normal.'); renderMain(); } }, S.demo ? 'Mode démo : activé (tout débloqué)' : 'Mode démo : tout débloquer'),
       h('button', { class: 'btn ghost', type: 'button', onclick: () => { S.placed = false; save(); render(); } }, 'Refaire le test de départ'),
