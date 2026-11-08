@@ -663,22 +663,22 @@ function smallPlay(text) { const b = h('button', { class: 'iconbtn', type: 'butt
 RENDER.pair = (ex, area) => {
   const p = ex.data, target = p.words[ex.promptIdx];
   const list = optionList(shuffle(p.words.map((w, i) => ({ value: w, label: w, fa: true }))), () => r.onReady(true), 'grid2');
-  area.append(h('h2', null, 'Qu’est-ce que tu entends ?'), h('div', { class: 'center' }, bigPlay(target), h('div', { class: 'q-fr' }, 'Touche le haut-parleur, puis le bon mot.')), list);
-  const r = { check() { const ok = list.value() === target; list.reveal(target); const i = p.words.indexOf(target), j = 1 - i; return { ok, correct: ok ? null : target, note: '<span class="fa">' + esc(p.words[i]) + '</span> = ' + esc(p.fr[i]) + ' · <span class="fa">' + esc(p.words[j]) + '</span> = ' + esc(p.fr[j]) + '. La différence : <span class="fa">' + esc(p.letters[i]) + '</span> contre <span class="fa">' + esc(p.letters[j]) + '</span>.' }; }, onShow() { setTimeout(() => play(target), 350); } };
+  area.append(h('h2', null, 'Qu’est-ce que tu entends ?'), h('div', { class: 'center' }, bigPlay(target), h('div', { class: 'q-fr' }, 'Touche le haut-parleur pour entendre le mot, puis choisis.')), list);
+  const r = { check() { const ok = list.value() === target; list.reveal(target); const i = p.words.indexOf(target), j = 1 - i; return { ok, correct: ok ? null : target, note: '<span class="fa">' + esc(p.words[i]) + '</span> = ' + esc(p.fr[i]) + ' · <span class="fa">' + esc(p.words[j]) + '</span> = ' + esc(p.fr[j]) + '. La différence : <span class="fa">' + esc(p.letters[i]) + '</span> contre <span class="fa">' + esc(p.letters[j]) + '</span>.' }; } };
   return r;
 };
 RENDER.fixdots = (ex, area) => {
   const d = ex.data;
   const list = optionList(shuffle(d.variants).map(v => ({ value: v, label: v, fa: true })), () => r.onReady(true));
   area.append(h('h2', null, 'Lequel est bien écrit ?'), h('div', { class: 'center' }, bigPlay(d.correct), h('div', { class: 'q-fr' }, '« ' + d.fr + ' »')), list);
-  const r = { check() { const ok = list.value() === d.correct; list.reveal(d.correct); return { ok, correct: ok ? null : d.correct, note: 'Les autres ont un point de trop, de moins, ou du mauvais côté.' }; }, onShow() { setTimeout(() => play(d.correct), 350); } };
+  const r = { check() { const ok = list.value() === d.correct; list.reveal(d.correct); return { ok, correct: ok ? null : d.correct, note: 'Les autres ont un point de trop, de moins, ou du mauvais côté.' }; } };
   return r;
 };
 RENDER.spell = (ex, area) => {
   const d = ex.data;
   const list = optionList(shuffle(d.options).map(v => ({ value: v, label: v, fa: true })), () => r.onReady(true));
   area.append(h('h2', null, 'Comment s’écrit « ' + d.fr + ' » ?'), h('div', { class: 'center' }, bigPlay(d.word), h('div', { class: 'q-fr' }, 'Même son, lettres différentes. Une seule orthographe est la bonne.')), list);
-  const r = { check() { const ok = list.value() === d.word; list.reveal(d.word); return { ok, correct: ok ? null : d.word, note: esc(d.note) }; }, onShow() { setTimeout(() => play(d.word), 350); } };
+  const r = { check() { const ok = list.value() === d.word; list.reveal(d.word); return { ok, correct: ok ? null : d.word, note: esc(d.note) }; } };
   return r;
 };
 RENDER.register_mc = (ex, area) => {
@@ -706,7 +706,7 @@ RENDER.build = (ex, area) => {
   all.forEach(ch => { const el = h('button', { class: 'tile letter', type: 'button' }, ch); el.addEventListener('click', () => { el.classList.add('used'); chosen.push({ ch, el }); redraw(); }); tiles.appendChild(el); });
   const undo = h('button', { class: 'btn ghost small', type: 'button', onclick: () => { const t = chosen.pop(); if (t) { t.el.classList.remove('used'); redraw(); } } }, 'Effacer la dernière lettre');
   area.append(h('h2', null, 'Écris « ' + w.fr + ' »'), h('div', { class: 'center' }, bigPlay(w.fa), h('div', { class: 'q-fr' }, 'Touche les lettres dans l’ordre. Elles s’attachent toutes seules.')), ans, tiles, h('div', { class: 'center' }, undo));
-  const r = { check() { const got = chosen.map(t => t.ch).join(''); const want = letters.join(''); const ok = got === want; ans.classList.add(ok ? 'ok' : 'bad'); if (ok) markLearned(ex.data.word); return { ok, correct: ok ? null : w.fa, note: ok ? '' : 'Compare lettre par lettre : tu as écrit <span class="fa">' + esc(got) + '</span>.' }; }, onShow() { setTimeout(() => play(w.fa), 350); } };
+  const r = { check() { const got = chosen.map(t => t.ch).join(''); const want = letters.join(''); const ok = got === want; ans.classList.add(ok ? 'ok' : 'bad'); if (ok) markLearned(ex.data.word); return { ok, correct: ok ? null : w.fa, note: ok ? '' : 'Compare lettre par lettre : tu as écrit <span class="fa">' + esc(got) + '</span>.' }; } };
   return r;
 };
 RENDER.vocab = (ex, area) => {
@@ -715,17 +715,18 @@ RENDER.vocab = (ex, area) => {
     h('div', { class: 'eyebrow' }, 'Nouveau mot'),
     h('div', { class: 'bigword' }, w.fa),
     bigPlay(w.fa),
+    h('div', { class: 'muted', style: 'font-size:.85rem' }, 'Essaie de le lire avant d’écouter.'),
     w.colloq ? h('div', { class: 'oral' }, 'À l’oral : ', h('span', { class: 'fa' }, w.colloq), smallPlay(w.colloq)) : null,
     w.para ? h('div', { class: 'para' }, smallPlay(w.para), h('span', { class: 'grow' }, w.para)) : null,
     h('div', { class: 'frline' }, w.fr));
   area.append(card);
-  return { auto: true, onShow() { setTimeout(() => play(w.fa), 300); } };
+  return { auto: true };
 };
 RENDER.vocab_check = (ex, area) => {
   const w = ex.data; const ds = distractors(ex.word, ex.pool, 3);
   const list = optionList(shuffle([ex.word].concat(ds)).map(id => ({ value: id, label: W[id].fr })), () => r.onReady(true));
   area.append(h('h2', null, 'Que veut dire ce mot ?'), h('div', { class: 'center' }, h('div', { class: 'bigword' }, w.fa), bigPlay(w.fa)), list);
-  const r = { check() { const ok = list.value() === ex.word; list.reveal(ex.word); if (ok) markLearned(ex.word); return { ok, correct: ok ? null : w.fr, note: w.para ? '<span class="fa">' + esc(w.para) + '</span>' : '' }; }, onShow() { setTimeout(() => play(w.fa), 350); } };
+  const r = { check() { const ok = list.value() === ex.word; list.reveal(ex.word); if (ok) markLearned(ex.word); return { ok, correct: ok ? null : w.fr, note: w.para ? '<span class="fa">' + esc(w.para) + '</span>' : '' }; } };
   return r;
 };
 RENDER.vocab_check_rev = (ex, area) => {
@@ -792,7 +793,7 @@ RENDER.dots = (ex, area) => {
       const wrong = slots.filter(i => !state[i].ok).map(i => parts[i].ch);
       return { ok, correct: ok ? null : d.word, note: ok ? 'Chaque point au bon endroit.' : 'À revoir : ' + wrong.map(c => '<span class="fa">' + esc(c) + '</span>').join(' ') + '. Compte les points et regarde de quel côté ils vont.' };
     },
-    onShow() { setTimeout(() => play(d.word), 350); requestAnimationFrame(() => { layout(); if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout); }); window.addEventListener('resize', layout); }
+    onShow() { requestAnimationFrame(() => { layout(); if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout); }); window.addEventListener('resize', layout); }
   };
   return r;
 };
@@ -868,13 +869,13 @@ function renderChat(l) {
     const m = CH.script[i++];
     if (m.choice) {
       inner.innerHTML = ''; inner.appendChild(h('div', { class: 'eyebrow' }, 'Ta réponse'));
-      const ch = h('div', { class: 'choices' }); m.choice.forEach(c => ch.appendChild(h('button', { class: 'opt fa', type: 'button', onclick: () => { bubble('me', c); play(c.text); inner.innerHTML = ''; setTimeout(step, 700); } }, c.text)));
+      const ch = h('div', { class: 'choices' }); m.choice.forEach(c => ch.appendChild(h('button', { class: 'opt fa', type: 'button', onclick: () => { bubble('me', c); inner.innerHTML = ''; setTimeout(step, 700); } }, c.text)));
       inner.appendChild(ch); inner.appendChild(h('div', { class: 'muted', style: 'font-size:.85rem' }, 'Les deux réponses sont bonnes. Choisis ce que tu dirais.'));
       return;
     }
     const t = h('div', { class: 'msg' }, h('div', { class: 'avatar ' + P[m.from].color }, P[m.from].name[0]), h('div', { class: 'typing' }, h('i'), h('i'), h('i')));
     feed.appendChild(t); t.scrollIntoView({ block: 'end' });
-    setTimeout(() => { t.remove(); bubble(m.from, m); play(m.text); setTimeout(step, 1600 + m.text.length * 25); }, 900);
+    setTimeout(() => { t.remove(); bubble(m.from, m); setTimeout(step, 1600 + m.text.length * 25); }, 900);
   }
   inner.appendChild(h('button', { class: 'btn', type: 'button', onclick: () => { inner.innerHTML = ''; step(); } }, 'Ouvrir le chat'));
 }

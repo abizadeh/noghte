@@ -440,7 +440,7 @@
     "famil": {
       "title": "گروه فامیل",
       "fr_title": "Le groupe de la famille",
-      "intro": "Un chat avec les cousins. Ici, on écrit comme on parle : c'est le registre familier, mais en alphabet persan. Touche un message pour la traduction.",
+      "intro": "Un chat avec les cousins. Ici, on écrit comme on parle : c'est le registre familier, mais en alphabet persan. Rien n’est lu tout seul : touche un message pour l’entendre et voir la traduction.",
       "participants": { "sara": { "name": "سارا", "voice": "default", "color": "a" }, "amir": { "name": "امیر", "voice": "male", "color": "b" } },
       "script": [
         { "from": "sara", "text": "سلام! رسیدی؟ 😄", "fr": "Salut ! T'es arrivé(e) ?" },
