@@ -482,14 +482,20 @@ let currentTab = 'path';
 function render() { rollDay(); if (!S.placed) renderOnboarding(); else renderMain(); window.scrollTo(0, 0); }
 function clear() { stopAudio(); $app.innerHTML = ''; }
 
+/* ---------- interests: chosen at the start, editable from Profil ---------- */
+const INTERESTS = ['Musique', 'Cuisine', 'Foot', 'Cinéma', 'Mèmes', 'Poésie'];
+function interestChips(sel, onChange) {
+  const chips = h('div', { class: 'chips' });
+  INTERESTS.forEach(it => { const c = h('button', { class: 'chip' + (sel.has(it) ? ' on' : ''), type: 'button', 'aria-pressed': sel.has(it) ? 'true' : 'false', onclick: () => { sel.has(it) ? sel.delete(it) : sel.add(it); c.classList.toggle('on'); c.setAttribute('aria-pressed', sel.has(it) ? 'true' : 'false'); if (onChange) onChange(sel); } }, it); chips.appendChild(c); });
+  return chips;
+}
+
 /* ---------- onboarding ---------- */
 function renderOnboarding() {
   clear();
   const name = h('input', { type: 'text', id: 'name', class: 'fa', placeholder: 'اسمت (به فارسی یا فرانسوی)', value: S.name || '' });
-  const chips = h('div', { class: 'chips' });
-  const INTERESTS = ['Musique', 'Cuisine', 'Foot', 'Cinéma', 'Mèmes', 'Poésie'];
   const sel = new Set(S.interests);
-  INTERESTS.forEach(it => { const c = h('button', { class: 'chip' + (sel.has(it) ? ' on' : ''), type: 'button', onclick: () => { sel.has(it) ? sel.delete(it) : sel.add(it); c.classList.toggle('on'); } }, it); chips.appendChild(c); });
+  const chips = interestChips(sel);
   const wrap = h('div', { class: 'onb gutter' },
     catSVG(110),
     h('div', { class: 'eyebrow' }, 'Noghte · ', h('span', { class: 'fa' }, 'نقطه')),
@@ -975,6 +981,9 @@ function renderProfile(v) {
   const learned = Object.keys(S.learned).length;
   v.append(h('h2', { style: 'margin-top:8px' }, 'Profil'),
     h('div', { class: 'card stack' }, h('div', { class: 'eyebrow' }, 'Ton nom en nastaliq'), nast, name, h('div', { class: 'muted', style: 'font-size:.85rem' }, 'Écris ton prénom en lettres persanes pour le voir en calligraphie. Sur iPhone : Réglages › Général › Clavier › Ajouter un clavier › Persan.')),
+    h('div', { class: 'card stack' }, h('div', { class: 'eyebrow' }, 'Ce qui t’intéresse'),
+      interestChips(new Set(S.interests), sel => { S.interests = INTERESTS.filter(i => sel.has(i)); save(); }),
+      h('div', { class: 'muted', style: 'font-size:.85rem' }, 'Touche pour changer, c’est enregistré tout de suite. Les textes des prochains jours suivront ces choix.')),
     h('div', { class: 'tiles-stats', style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' },
       h('div', { class: 'card' }, h('div', { class: 'eyebrow' }, 'XP total'), h('div', { class: 'bignum' }, String(S.xp))),
       h('div', { class: 'card' }, h('div', { class: 'eyebrow' }, 'Streak'), h('div', { class: 'bignum' }, S.streak + ' j')),
