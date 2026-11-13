@@ -320,6 +320,7 @@ const DAILY_GOAL = 30;
 /* ---------- state ---------- */
 const DEFAULT = { name: '', interests: [], placed: false, skills: { points: 0, orthographe: 0, registre: 0, vocabulaire: 0 }, baseRank: 800, done: {}, learned: {}, xp: 0, xpToday: 0, today: '', streak: 0, lastActive: '', rushBest: 0, dotsOk: 0, badges: {}, demo: false, flags: [] };
 let S = load();
+if (!S.placed && (S.xp > 0 || Object.keys(S.done || {}).length)) { S.placed = true; save(); }
 function load() { try { const s = JSON.parse(localStorage.getItem('noghte_v1') || 'null'); if (s) return Object.assign({}, DEFAULT, s); } catch (e) {} return Object.assign({}, DEFAULT); }
 function save() { try { localStorage.setItem('noghte_v1', JSON.stringify(S)); } catch (e) {} }
 function todayStr() { const d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
@@ -488,7 +489,9 @@ function renderOnboarding() {
     h('p', { class: 'muted', style: 'margin:0' }, 'Trois minutes par jour. Des points, des lettres qui se ressemblent, le registre de l’écrit, et des vrais textes. Pashmak, le chat, surveille ton streak.'),
     h('div', { class: 'stack' }, h('label', { for: 'name', class: 'eyebrow' }, 'Ton prénom'), name),
     h('div', { class: 'stack' }, h('div', { class: 'eyebrow' }, 'Ce qui t’intéresse (pour les textes à venir)'), chips),
-    h('button', { class: 'btn', type: 'button', onclick: () => { S.name = name.value.trim(); S.interests = [...sel]; save(); startPlacement(); } }, 'Faire le test de départ (2 min)')
+    h('button', { class: 'btn', type: 'button', onclick: () => { S.name = name.value.trim(); S.interests = [...sel]; save(); startPlacement(); } }, S.placed ? 'Refaire le test (2 min)' : 'Faire le test de départ (2 min)'),
+    S.placed ? h('button', { class: 'btn ghost', type: 'button', onclick: () => { currentTab = 'profile'; render(); } }, 'Annuler, retour au profil') : null,
+    S.placed ? h('p', { class: 'muted', style: 'margin:0;font-size:.9rem' }, 'Tes leçons, tes XP et ton streak ne bougent pas. Tes scores actuels restent tant que le nouveau test n’est pas terminé.') : null
   );
   $app.appendChild(wrap);
 }
@@ -512,7 +515,7 @@ function renderPlacementResult() {
     h('div', { class: 'cat-row' }, catSVG(64), h('div', { class: 'bubble grow' }, 'Pas mal' + (S.name ? ', ' + S.name : '') + '. ' + advice[weakest])),
     h('div', { class: 'card stack' }, h('div', { class: 'eyebrow' }, 'Tes points forts et faibles'), skillsBlock()),
     h('div', { class: 'card stack' }, h('div', { class: 'eyebrow' }, 'Couverture de lecture (estimation)'), h('div', { class: 'row' }, h('div', { class: 'bignum' }, Math.round(coverage() * 100) + ' %'), h('div', { class: 'muted grow' }, 'des mots d’un texte persan courant te sont déjà lisibles. Ce chiffre monte à chaque leçon.')), meter(coverage())),
-    h('button', { class: 'btn', type: 'button', onclick: () => { currentTab = 'path'; render(); } }, 'Commencer le Jour 1')
+    h('button', { class: 'btn', type: 'button', onclick: () => { currentTab = 'path'; render(); } }, Object.keys(S.done).length ? 'Retour au parcours' : 'Commencer le Jour 1')
   );
   $app.appendChild(wrap);
 }
@@ -606,7 +609,7 @@ function runExercises(items, opts) {
   function show(ex) {
     clear();
     const prog = h('div', { class: 'progress' }, h('i'));
-    const top = h('div', { class: 'lesson-top gutter' }, h('div', { class: 'lesson-top-inner' }, h('button', { class: 'iconbtn', type: 'button', 'aria-label': 'Quitter', onclick: () => { if (opts.placement) { S.placed = false; } render(); } }, svg('close')), prog, flagButton({ screen: opts.title, item: exLabel(ex) })));
+    const top = h('div', { class: 'lesson-top gutter' }, h('div', { class: 'lesson-top-inner' }, h('button', { class: 'iconbtn', type: 'button', 'aria-label': 'Quitter', onclick: () => render() }, svg('close')), prog, flagButton({ screen: opts.title, item: exLabel(ex) })));
     const done = n - queue.length - retry.length - 1; prog.firstChild.style.width = Math.round(100 * Math.max(0, done) / n) + '%';
     const area = h('div', { class: 'ex gutter' });
     const bar = h('div', { class: 'actionbar' }); const inner = h('div', { class: 'inner' }); bar.appendChild(inner);
@@ -982,7 +985,7 @@ function renderProfile(v) {
       S.flags.length ? h('button', { class: 'btn ghost', type: 'button', onclick: () => { S.flags = []; save(); renderMain(); } }, 'Effacer les signalements') : null),
     h('div', { class: 'card stack' }, h('div', { class: 'eyebrow' }, 'Prototype'),
       h('button', { class: 'btn ghost', type: 'button', onclick: () => { S.demo = !S.demo; save(); toast(S.demo ? 'Tout est débloqué.' : 'Parcours normal.'); renderMain(); } }, S.demo ? 'Mode démo : activé (tout débloqué)' : 'Mode démo : tout débloquer'),
-      h('button', { class: 'btn ghost', type: 'button', onclick: () => { S.placed = false; save(); render(); } }, 'Refaire le test de départ'),
+      h('button', { class: 'btn ghost', type: 'button', onclick: () => { renderOnboarding(); window.scrollTo(0, 0); } }, 'Refaire le test de départ'),
       h('button', { class: 'btn pom', type: 'button', onclick: () => { try { localStorage.removeItem('noghte_v1'); } catch (e) {} S = Object.assign({}, DEFAULT, { done: {}, learned: {}, badges: {}, skills: { points: 0, orthographe: 0, registre: 0, vocabulaire: 0 } }); render(); } }, 'Tout effacer')));
 }
 
