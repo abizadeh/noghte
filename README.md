@@ -15,7 +15,7 @@ Prototype d'application de lecture et d'écriture du persan pour des adolescents
 
 - `index.html` : l'application complète (une page, sans dépendance de build). Ouvrable telle quelle sur un serveur statique ou en « Ajouter à l'écran d'accueil » sur iPhone.
 - `artifact.html` : la même page sans l'enveloppe `<html>/<head>`, pour la publication comme artefact claude.ai. Généré par `build.py`.
-- `content.json` : tout le contenu (mots, exercices, textes, chat, paroles). C'est le fichier à modifier pour ajouter des leçons.
+- `content.json` : tout le contenu (mots, exercices, textes, chat, paroles). C'est le fichier à modifier pour ajouter des leçons. Les scripts qui le modifient passent par `contentfmt.py` (`load`, `dump`) pour garder sa mise en forme.
 - `content.js` : généré à partir de `content.json`, avec la carte des fichiers audio et les timings du karaoké.
 - `audio/` : clips persans générés (voix neuronales fa-IR Dilara et Farid via edge-tts).
 - `build.py` : génère les clips manquants et réécrit `content.js` et `artifact.html`.
@@ -42,7 +42,7 @@ Copier le dossier sur n'importe quel hébergement statique (GitHub Pages, Netlif
 Construits d'après les retours sur les Jours 1 et 2 : séances courtes, lecture avant écoute, chat à embranchements, poème et chanson lus d'abord.
 
 - **Jour 3, au bazar de Tajrish** : 11 séances. Chiffres persans, fruits, acheter, politesse, prix, registre (می‌شه, می‌تونم, واسه, دیگه, یه), lire une étiquette quand on est végétarien ou végane, un texte, un chat (pique-nique), une révision.
-- **Jour 4, une soirée chez les cousins** : 12 séances. Musique, cinéma, foot, sentiments, mots de liaison de l'écrit, registre (passé pluriel, ـش collé, تو pour در), orthographe, un texte au choix (film ou foot, selon les intérêts), le poème بنی‌آدم de Saadi, une chanson, une révision.
+- **Jour 4, une soirée chez les cousins** : 11 séances. Musique, cinéma, foot, sentiments, mots de liaison de l'écrit, registre (passé pluriel, ـش collé, تو pour در), orthographe, un texte au choix (film ou foot, selon les intérêts), une chanson, une révision. Le poème بنی‌آدم de Saadi a été retiré après écoute : la voix de synthèse lit mal la poésie classique. Son texte, sa traduction et ses notes sont gardés dans `content.json` sous `parked`, pour le jour où un humain l'enregistre.
 - 49 mots nouveaux en tout, cinq au maximum par séance.
 
 Ce qui a été ajouté au moteur :
@@ -51,7 +51,7 @@ Ce qui a été ajouté au moteur :
 - **Carte `explain` générale** : `cols` change les en-têtes, `eyebrow` le sur-titre. Une cellule n'est cliquable que si un clip existe pour son texte.
 - **Séance de révision** (`kind: "review"`) : reconstruite à chaque ouverture. Elle reprend jusqu'à six exercices que cet apprenant a ratés au premier essai (`S.miss`), complétés par des exercices déjà vus. Un exercice sort de la liste quand il est réussi au premier essai.
 - **Texte au choix** : une leçon de lecture peut avoir `variants` (plusieurs textes, chacun avec ses `interests`). Les textes qui correspondent aux intérêts de l'apprenant sont mis en avant ; un seul suffit pour valider.
-- **Poème** : même écran que le karaoké, avec `label`, `whole` et `done` pour les libellés.
+- **Poème** : même écran que le karaoké, avec `label`, `whole` et `done` pour les libellés. Non utilisé pour l'instant (voir `parked`).
 - **Écoute de contrôle** : `check.html` liste tous les clips des unités nommées dans `check_units`, leçon par leçon, avec une case « faux ». À faire écouter par un locuteur avant de donner un nouveau jour aux enfants ; les clips cochés se corrigent ensuite dans la carte `tts` ou au labo.
 
 - **Jour en préparation** : une unité avec `"draft": true` dans `content.json` n'apparaît qu'en mode démo (Profil). Les Jours 3 et 4 sont dans cet état tant que l'écoute de contrôle n'est pas faite. Pour publier un jour, retirer `"draft": true` de son unité, relancer `python build.py --no-audio` et pousser.

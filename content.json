@@ -100,7 +100,7 @@
     "mosabeghe": {"fa": "مسابقه", "fr": "match, compétition", "para": "بازی‌ای که در آن یک نفر یا یک تیم می‌برد.", "rank": 1000},
     "barande": {"fa": "برنده", "fr": "gagnant, gagnante", "para": "کسی که می‌برد.", "rank": 1800},
     "tamashagar": {"fa": "تماشاگر", "fr": "spectateur, spectatrice", "para": "کسی که بازی یا فیلم را نگاه می‌کند.", "rank": 3000},
-    "hayajan": {"fa": "هیجان", "fr": "excitation, émotion forte", "para": "حسی که قبل از یک اتفاقِ مهم داری؛ قلبت تند می‌زند.", "rank": 2500},
+    "hayajan": {"fa": "هیجان", "fr": "excitation, émotion forte", "para": "حسی که قبل از یک اتفاقِ مهم داری. قلبت تند می‌زند.", "rank": 2500},
     "khoshhali": {"fa": "خوشحالی", "fr": "joie", "para": "حسِ خوب، وقتی اتفاقِ خوبی افتاده است.", "rank": 2800},
     "deltang": {"fa": "دلتنگ", "fr": "qui s'ennuie de quelqu'un", "para": "وقتی دلت برای کسی یا جایی تنگ شده است.", "rank": 6000},
     "eftekhar": {"fa": "افتخار", "fr": "fierté, honneur", "para": "حسی که داری وقتی کارِ خوبی کرده‌ای.", "rank": 1500},
@@ -930,7 +930,6 @@
             {"reading": "foot", "label": "شب فوتبال", "fr": "Soirée foot", "interests": ["Foot"]}
           ]
         },
-        {"id": "d4_poem", "title": "Poème : بنی‌آدم", "kind": "karaoke", "icon": "feather", "karaoke": "baniadam"},
         {"id": "d4_karaoke", "title": "Karaoké : شب تهران", "kind": "karaoke", "icon": "music", "karaoke": "shab"},
         {"id": "d4_review", "title": "Révision", "kind": "review", "icon": "review"}
       ]
@@ -971,7 +970,7 @@
         ],
         [
           "سارا خندید و گفت: «گران است! کمی تخفیف بدهید.»",
-          "در آخر دو کیلو انار و نیم کیلو توت‌فرنگی خریدیم.",
+          "در آخر، دو کیلو انار و نیم کیلو توت‌فرنگی خریدیم.",
           "روی یک بسته شیرینی نوشته بود: «ترکیبات: آرد، شکر، روغن گیاهی».",
           "گفتم: «این را می‌توانم بخورم!»"
         ]
@@ -1338,48 +1337,6 @@
         "سنگک": "pain plat cuit sur des cailloux"
       }
     },
-    "baniadam": {
-      "title": "بنی‌آدم",
-      "fr_title": "Les enfants d'Adam, de Saadi",
-      "label": "Poème",
-      "whole": "Écouter tout le poème",
-      "done": "Poème lu.",
-      "intro": "Un poème de Saadi, écrit il y a près de huit cents ans, que tous les Iraniens connaissent. La langue est ancienne : c'est normal de buter. Lis chaque vers à voix haute, écoute-le, puis dis comment ça s'est passé.",
-      "lines": ["بنی‌آدم اعضای یکدیگرند", "که در آفرینش ز یک گوهرند", "چو عضوی به درد آورد روزگار", "دگر عضوها را نماند قرار", "تو کز محنت دیگران بی‌غمی", "نشاید که نامت نهند آدمی"],
-      "fr": [
-        "Les enfants d'Adam sont les membres les uns des autres,",
-        "car dans la création ils sont d'une même essence.",
-        "Quand le sort fait souffrir un membre,",
-        "les autres membres ne trouvent plus le repos.",
-        "Toi qui restes indifférent à la peine des autres,",
-        "tu ne mérites pas qu'on t'appelle humain."
-      ],
-      "notes": {
-        "بنی‌آدم": "les enfants d'Adam : les humains",
-        "اعضای": "les membres de… (pluriel de عضو)",
-        "یکدیگرند": "یکدیگر (les uns les autres) + ـند (sont)",
-        "آفرینش": "la création",
-        "ز": "= از (forme poétique)",
-        "گوهرند": "گوهر (essence, joyau) + ـند (sont)",
-        "چو": "= وقتی, quand (forme poétique)",
-        "عضوی": "un membre",
-        "درد": "douleur",
-        "آورد": "amène. به درد آورد = fait souffrir",
-        "روزگار": "le sort, le temps qui passe",
-        "دگر": "= دیگر",
-        "عضوها": "les membres",
-        "نماند": "ne reste pas",
-        "قرار": "repos, calme",
-        "کز": "= که از",
-        "محنت": "peine, souffrance",
-        "دیگران": "les autres",
-        "بی‌غمی": "tu es sans souci : بی‌غم + ـی",
-        "نشاید": "il ne convient pas",
-        "نامت": "ton nom : نام + ـت",
-        "نهند": "qu'on pose, qu'on donne",
-        "آدمی": "être humain"
-      }
-    },
     "shab": {
       "title": "شب تهران",
       "fr_title": "Nuit de Téhéran",
@@ -1721,5 +1678,49 @@
       "note": "شیر خشک = lait en poudre. تخم‌مرغ = œuf."
     }
   ],
-  "check_units": ["d3", "d4"]
+  "check_units": ["d3", "d4"],
+  "parked": {
+    "baniadam": {
+      "title": "بنی‌آدم",
+      "fr_title": "Les enfants d'Adam, de Saadi",
+      "label": "Poème",
+      "whole": "Écouter tout le poème",
+      "done": "Poème lu.",
+      "intro": "Un poème de Saadi, écrit il y a près de huit cents ans, que tous les Iraniens connaissent. La langue est ancienne : c'est normal de buter. Lis chaque vers à voix haute, écoute-le, puis dis comment ça s'est passé.",
+      "lines": ["بنی‌آدم اعضای یکدیگرند", "که در آفرینش ز یک گوهرند", "چو عضوی به درد آورد روزگار", "دگر عضوها را نماند قرار", "تو کز محنت دیگران بی‌غمی", "نشاید که نامت نهند آدمی"],
+      "fr": [
+        "Les enfants d'Adam sont les membres les uns des autres,",
+        "car dans la création ils sont d'une même essence.",
+        "Quand le sort fait souffrir un membre,",
+        "les autres membres ne trouvent plus le repos.",
+        "Toi qui restes indifférent à la peine des autres,",
+        "tu ne mérites pas qu'on t'appelle humain."
+      ],
+      "notes": {
+        "بنی‌آدم": "les enfants d'Adam : les humains",
+        "اعضای": "les membres de… (pluriel de عضو)",
+        "یکدیگرند": "یکدیگر (les uns les autres) + ـند (sont)",
+        "آفرینش": "la création",
+        "ز": "= از (forme poétique)",
+        "گوهرند": "گوهر (essence, joyau) + ـند (sont)",
+        "چو": "= وقتی, quand (forme poétique)",
+        "عضوی": "un membre",
+        "درد": "douleur",
+        "آورد": "amène. به درد آورد = fait souffrir",
+        "روزگار": "le sort, le temps qui passe",
+        "دگر": "= دیگر",
+        "عضوها": "les membres",
+        "نماند": "ne reste pas",
+        "قرار": "repos, calme",
+        "کز": "= که از",
+        "محنت": "peine, souffrance",
+        "دیگران": "les autres",
+        "بی‌غمی": "tu es sans souci : بی‌غم + ـی",
+        "نشاید": "il ne convient pas",
+        "نامت": "ton nom : نام + ـت",
+        "نهند": "qu'on pose, qu'on donne",
+        "آدمی": "être humain"
+      }
+    }
+  }
 }
