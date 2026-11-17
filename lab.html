@@ -42,7 +42,8 @@
   const player = new Audio(); const picks = {};
   const groups = document.getElementById('groups'); const out = document.getElementById('out');
   function refresh() { out.value = Object.keys(picks).map(w => w + ' : ' + picks[w]).join('\n'); }
-  window.LAB.forEach(g => {
+  window.LAB.forEach((g, gi) => {
+    const key = g.word + ' [' + g.latin + ']';
     const box = document.createElement('div'); box.className = 'group';
     box.innerHTML = '<div class="word">' + g.word + '</div><div class="latin">' + g.latin + '</div>';
     g.variants.forEach(v => {
@@ -51,13 +52,13 @@
       const b = document.createElement('button'); b.className = 'play'; b.type = 'button'; b.textContent = '▶'; b.setAttribute('aria-label', 'Écouter ' + v.label);
       b.addEventListener('click', () => { player.pause(); player.src = v.src; player.currentTime = 0; player.play().catch(() => {}); });
       const pick = document.createElement('label'); pick.className = 'pick';
-      const r = document.createElement('input'); r.type = 'radio'; r.name = g.word; r.value = v.label;
-      r.addEventListener('change', () => { picks[g.word] = v.label + ' (' + v.text + ', ' + v.voice + ')'; refresh(); });
+      const r = document.createElement('input'); r.type = 'radio'; r.name = 'g' + gi; r.value = v.label;
+      r.addEventListener('change', () => { picks[key] = v.label + ' (' + v.text + ', ' + v.voice + ')'; refresh(); });
       pick.append(r, 'meilleure'); row.append(b, pick); box.appendChild(row);
     });
     const none = document.createElement('label'); none.className = 'pick'; none.style.paddingTop = '6px';
-    const r0 = document.createElement('input'); r0.type = 'radio'; r0.name = g.word; r0.value = 'aucune';
-    r0.addEventListener('change', () => { picks[g.word] = 'aucune n’est bonne'; refresh(); });
+    const r0 = document.createElement('input'); r0.type = 'radio'; r0.name = 'g' + gi; r0.value = 'aucune';
+    r0.addEventListener('change', () => { picks[key] = 'aucune n’est bonne'; refresh(); });
     none.append(r0, 'aucune n’est bonne'); box.appendChild(none);
     groups.appendChild(box);
   });

@@ -10,12 +10,9 @@ VOICES = {"dilara": "fa-IR-DilaraNeural", "farid": "fa-IR-FaridNeural"}
 
 # word shown to the learner -> candidate (text the voice reads, voice)
 GROUPS = [
-    # round 3: flags from the mehmooni lesson. Target readings: rasm, dard nakone, khāle (aunt), amme, dokhtar-amu
-    ("رسم ایرانی", "rasm-e irāni (pas « resm »)", [("رسم ایرانی", "dilara"), ("رَسمِ ایرانی", "dilara"), ("رَسْمِ ایرانی", "dilara"), ("رَسم ایرانی", "dilara"), ("رَسْم ایرانی", "dilara"), ("رَسمِ ایرانی", "farid")]),
-    ("دست شما درد نکنه", "dast-e shomā dard nakone (pas « nakona »)", [("دست شما درد نکنه", "dilara"), ("دَستِ شُما دَرد نَکُنه", "dilara"), ("دَستِ شُما دَرد نَکُنِه", "dilara"), ("دست شما درد نَکُنِه", "dilara"), ("دَستِ شُما دَرد نَکُنِه", "farid"), ("دست شما درد نکنه", "farid")]),
-    ("خاله", "khāle, la tante (pas « c'est un grain de beauté »)", [("خاله", "dilara"), ("خالِه", "dilara"), ("خاله", "farid"), ("خالِه", "farid"), ("خالهٔ من", "dilara"), ("خاله جان", "dilara")]),
-    ("عمه", "amme, avec le m appuyé", [("عمه", "dilara"), ("عَمّه", "dilara"), ("عَمِّه", "dilara"), ("عَمْمه", "dilara"), ("عَمّه", "farid"), ("عَمِّه", "farid")]),
-    ("دخترعمو", "dokhtar-amu", [("دخترعمو", "dilara"), ("دُختَرعَمو", "dilara"), ("دُختَر عَمو", "dilara"), ("دختر عمو", "dilara"), ("دُختَر عَمو", "farid"), ("دختر عمو", "farid")]),
+    # round 4: رسم must be read "rasm". Round 3 (plain, رَسمِ, رَسْمِ, رَسم, رَسْم) all failed.
+    ("رسم ایرانی", "rasm-e irāni : nouvelles astuces", [("رَصْمِ ایرانی", "dilara"), ("رَثْمِ ایرانی", "dilara"), ("رَصم ایرانی", "dilara"), ("رسمِ ایرانی", "dilara"), ("رَصْمِ ایرانی", "farid"), ("رسم ایرانی", "farid")]),
+    ("رسم ایرانی", "si rien ne marche : une autre formulation", [("رسم و رسوم ایرانی", "dilara"), ("عادت ایرانی", "dilara"), ("آداب ایرانی", "dilara"), ("سُنَّتِ ایرانی", "dilara"), ("فرهنگ ایرانی", "dilara")]),
 ]
 
 def h(s):
