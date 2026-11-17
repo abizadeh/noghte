@@ -68,6 +68,8 @@ Ce qu'on a appris en quatre séries :
 - Pour un mot isolé mal accentué (خونه, خاله), la voix de Farid sans retouche marche souvent mieux.
 - Un sukun bloque une voyelle parasite (کَشْک). Doubler la lettre force une géminée (عَمْمه).
 - Si la voix a une lecture fausse figée pour un mot (رسم lu « resm »), le réécrire avec une lettre homophone (رَصْمِ) l'oblige à suivre les voyelles.
+- Pour faire entendre un ezafé non écrit, l'écrire avec un ه pour la voix (نونه سنگک pour « nun-e sangak »). Le kasra seul n'a pas suffi.
+- Un -o familier écrit و est lu « u » (کتابو). Le remplacer par un zamma pour la voix (کتابُ). Mais اینو et رو étaient justes tels quels : vérifier avant de toucher.
 - Rien n'est vérifiable sans oreille : chaque changement passe par le labo ou par un signalement dans l'app (drapeau en haut de chaque écran, liste dans Profil).
 
 ## Limites connues du prototype
