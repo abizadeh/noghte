@@ -37,6 +37,14 @@ python build.py
 
 Copier le dossier sur n'importe quel hébergement statique (GitHub Pages, Netlify, un serveur web). Ouvrir l'adresse dans Safari, puis Partager › Sur l'écran d'accueil. L'application s'ouvre alors en plein écran avec son icône. La progression est enregistrée sur l'appareil.
 
+## Règles pour les nouvelles leçons (retours des enfants)
+
+- **Leçons courtes.** Une leçon = 8 à 12 exercices, 3 à 4 minutes, 5 mots nouveaux au maximum. Retour d'un des enfants : devant une leçon longue comme La mehmooni (14 mots, 24 exercices), il se dit « je n'ai peut-être pas le temps » et ne la commence pas. Mieux vaut deux ou trois petites leçons sur le même thème.
+- **Les lectures, le chat et le karaoké gardent leur longueur.** Elles conviennent telles quelles.
+- **Ne pas redécouper les leçons existantes des Jours 1 et 2** (décision du 17 novembre 2026). La règle vaut pour les nouveaux jours.
+- **Lire avant d'entendre.** Rien n'est lu automatiquement quand la tâche est de lire (carte de mot, sens du mot, registre, chat, texte). Le son se lance seul seulement quand il est la consigne (écoute, orthographe, points, lettres à assembler).
+- **Mauvaise réponse** : « Réessayer » tout de suite ou passer ; l'exercice revient de toute façon à la fin de la leçon.
+
 ## Prononciation : la carte `tts` et le labo
 
 La voix de synthèse devine mal certaines voyelles courtes. Le texte affiché à l'apprenant reste toujours l'orthographe normale ; seule la voix reçoit une autre version.
