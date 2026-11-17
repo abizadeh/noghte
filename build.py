@@ -34,26 +34,44 @@ def tts_voice(text):
 
 # An entry with "solo": true is used only when the clip is exactly that word. Sentences that
 # contain the word are left alone, since context already tells the voice how to read it.
-_keys = sorted((k for k in TTS if not (isinstance(TTS[k], dict) and TTS[k].get("solo"))), key=len, reverse=True)
-_pat = re.compile("(?<![؀-ۿ])(" + "|".join(re.escape(k) for k in _keys) + ")(?![؀-ۿ])") if _keys else None
+# An entry can also carry "in": the reading to use when the word sits inside a sentence
+# (بالاخره alone is right in Farid's plain reading, but inside a Dilara sentence it needs بِلَخَره).
+def tts_inside(key):
+    v = TTS[key]
+    return v["in"] if isinstance(v, dict) and v.get("in") else tts_spelling(key)
+
+_keys = sorted((k for k in TTS if not (isinstance(TTS[k], dict) and TTS[k].get("solo") and not TTS[k].get("in"))), key=len, reverse=True)
+# A word ends where the letters and vowel marks end. Persian punctuation (، ؛ ؟) and digits are
+# not letters, so a word followed by a comma or a question mark is still matched.
+_LET = "ء-يً-ْٰٮ-ۓ"
+_pat = re.compile("(?<![" + _LET + "])(" + "|".join(re.escape(k) for k in _keys) + ")(?![" + _LET + "])") if _keys else None
+
+# Readings fixed as they stood when the boundary rule above was corrected (November 2026): these
+# clips had been listened to and left alone, so their voice text must not shift.
+FROZEN = C.get("tts_frozen", {})
 
 def tts_text(text):
+    if text in FROZEN:
+        return FROZEN[text]
     t = text
     if text in TTS:
         t = tts_spelling(text)
     elif _pat:
-        t = _pat.sub(lambda m: tts_spelling(m.group(1)), t)
+        t = _pat.sub(lambda m: tts_inside(m.group(1)), t)
     t = re.sub(ZWNJ + "(?=ا)", " ", t)
     t = re.sub(r"[\U0001F300-\U0001FAFF☀-➿]", "", t)  # emoji
     return t.strip()
 
 # ---- collect every string that needs a clip ----------------------------------------------
 items = {}  # display text -> voice
+MUTE = set(C.get("mute", []))  # texts with no acceptable reading yet: no clip, and the app shows no speaker
 
 def add(text, voice="default"):
     if not text or not isinstance(text, str):
         return
     if not re.search(r"[؀-ۿ]", text):
+        return
+    if text in MUTE:
         return
     items.setdefault(text, voice)
 
@@ -186,6 +204,15 @@ if "--no-audio" not in sys.argv:
     todo = sum(1 for t, v in items.items() if needs(h(t), tts_text(t), v))
     print(f"{todo} clips to generate")
     asyncio.run(main())
+    # drop clips no text refers to any more (a sentence reworded, a text silenced)
+    wanted = {h(t) for t in items}
+    for name in os.listdir(AUDIO_DIR):
+        stem = name[:-4]
+        if name.endswith(".mp3") and re.fullmatch(r"[0-9a-f]{10}", stem) and stem not in wanted:
+            os.remove(os.path.join(AUDIO_DIR, name))
+            print("removed unused clip", name)
+    for k in [k for k in manifest if k not in wanted]:
+        del manifest[k]
     with open(MANIFEST, "w", encoding="utf-8") as f:
         json.dump(manifest, f, ensure_ascii=False, indent=0)
 

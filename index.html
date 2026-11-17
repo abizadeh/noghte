@@ -385,7 +385,7 @@ let playingBtn = null;
 function play(text, btn) {
   const src = AUDIO[text];
   if (playingBtn) playingBtn.classList.remove('playing');
-  if (!src) { speakFallback(text); return; }
+  if (!src) return;   // no approved clip for this text: stay silent rather than let the phone's own voice guess
   try { player.pause(); player.src = src; player.currentTime = 0; const p = player.play(); if (p && p.catch) p.catch(() => {}); } catch (e) {}
   if (btn) { playingBtn = btn; btn.classList.add('playing'); player.onended = () => btn.classList.remove('playing'); }
 }
@@ -875,8 +875,8 @@ RENDER.vocab = (ex, area) => {
     h('div', { class: 'bigword' }, w.fa),
     bigPlay(w.fa),
     h('div', { class: 'muted', style: 'font-size:.85rem' }, 'Essaie de le lire avant d’écouter.'),
-    w.colloq ? h('div', { class: 'oral' }, 'À l’oral : ', h('span', { class: 'fa' }, w.colloq), smallPlay(w.colloq)) : null,
-    w.para ? h('div', { class: 'para' }, smallPlay(w.para), h('span', { class: 'grow' }, w.para)) : null,
+    w.colloq ? h('div', { class: 'oral' }, 'À l’oral : ', h('span', { class: 'fa' }, w.colloq), AUDIO[w.colloq] ? smallPlay(w.colloq) : null) : null,
+    w.para ? h('div', { class: 'para' }, AUDIO[w.para] ? smallPlay(w.para) : null, h('span', { class: 'grow' }, w.para)) : null,
     h('div', { class: 'frline' }, w.fr));
   area.append(card);
   return { auto: true };
@@ -992,7 +992,7 @@ function glossSheet(info, extra) {
   sh.appendChild(h('div', { class: 'row' }, h('div', { class: 'word grow' }, info.token), AUDIO[info.say] ? smallPlay(info.say) : null));
   if (info.missing) sh.appendChild(h('div', { class: 'note' }, 'Pas encore de définition pour ce mot dans le prototype.'));
   if (info.colloq) sh.appendChild(h('div', { class: 'note' }, 'À l’oral : ', h('span', { class: 'fa' }, info.colloq)));
-  if (info.para) sh.appendChild(h('div', { class: 'para' }, smallPlay(info.para), h('span', { class: 'grow' }, info.para)));
+  if (info.para) sh.appendChild(h('div', { class: 'para' }, AUDIO[info.para] ? smallPlay(info.para) : null, h('span', { class: 'grow' }, info.para)));
   if (info.fr) sh.appendChild(h('div', { class: 'frline' }, info.fr));
   if (info.note) sh.appendChild(h('div', { class: 'note', html: esc(info.note).replace(/([؀-ۿ‌]+)/g, '<span class="fa">$1</span>') }));
   if (extra) sh.appendChild(extra);

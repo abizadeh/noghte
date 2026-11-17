@@ -54,7 +54,7 @@ Ce qui a été ajouté au moteur :
 - **Poème** : même écran que le karaoké, avec `label`, `whole` et `done` pour les libellés. Non utilisé pour l'instant (voir `parked`).
 - **Écoute de contrôle** : `check.html` liste tous les clips des unités nommées dans `check_units`, leçon par leçon, avec une case « faux ». À faire écouter par un locuteur avant de donner un nouveau jour aux enfants ; les clips cochés se corrigent ensuite dans la carte `tts` ou au labo.
 
-- **Jour en préparation** : une unité avec `"draft": true` dans `content.json` n'apparaît qu'en mode démo (Profil). Les Jours 3 et 4 sont dans cet état tant que l'écoute de contrôle n'est pas faite. Pour publier un jour, retirer `"draft": true` de son unité, relancer `python build.py --no-audio` et pousser.
+- **Jour en préparation** : une unité avec `"draft": true` dans `content.json` n'apparaît qu'en mode démo (Profil). Les Jours 3 et 4 ont été publiés le 17 novembre 2026, après l'écoute de contrôle et la série 6 du labo. Pour publier un jour, retirer `"draft": true` de son unité, relancer `python build.py --no-audio` et pousser.
 
 Pour ajouter un jour : ajouter les mots dans `words`, les exercices dans les listes (`pairs`, `spell`, `dots`, `fixdots`, `register_mc`, `register_build`, `build`, `mc`, toujours à la fin, car les leçons y renvoient par numéro), l'unité dans `units`, les textes dans `readings` avec leurs mots dans `lexicon`, puis lancer `python build.py` et faire l'écoute de contrôle.
 
@@ -83,6 +83,14 @@ La voix de synthèse devine mal certaines voyelles courtes. Le texte affiché à
 - `build.py` régénère uniquement les clips dont le texte lu ou la voix a changé (`audio/manifest.json`), et versionne les URL audio pour éviter les caches.
 - `lab.html` + `lab_build.py` : le labo d'écoute. On met dans `GROUPS` plusieurs variantes d'un mot (voyelles, voix), on augmente `ROUND`, on lance `python lab_build.py`, on pousse. Un locuteur écoute sur `/lab.html?r=<ROUND>`, coche la meilleure variante, copie ses choix. Ces choix vont dans la carte `tts`.
 
+Autres réglages de la voix dans `content.json` :
+
+- `"in"` dans une entrée `tts` : la lecture à utiliser quand le mot est dans une phrase, différente de celle du mot seul (بالاخره : seul, Farid sans retouche ; dans une phrase, بِلَخَره).
+- Une phrase entière peut être une clé de `tts` : la voix reçoit alors exactement le texte donné, sans autre remplacement.
+- `mute` : textes sans lecture acceptable pour l'instant. Aucun clip n'est généré et l'app n'affiche pas de haut-parleur pour eux.
+- `tts_frozen` : lectures figées de clips déjà écoutés, pour qu'une correction des règles de `build.py` ne les modifie pas.
+- `build.py` supprime les clips qu'aucun texte n'utilise plus.
+
 Ce qu'on a appris en quatre séries :
 
 - Partir de l'orthographe simple. Ajouter des voyelles aide une fois sur deux et casse l'autre fois (بنابراین, منتظر, دخترعمو étaient justes sans voyelles).
@@ -91,6 +99,10 @@ Ce qu'on a appris en quatre séries :
 - Si la voix a une lecture fausse figée pour un mot (رسم lu « resm »), le réécrire avec une lettre homophone (رَصْمِ) l'oblige à suivre les voyelles.
 - Pour faire entendre un ezafé non écrit, l'écrire avec un ه pour la voix (نونه سنگک pour « nun-e sangak »). Le kasra seul n'a pas suffi.
 - Un -o familier écrit و est lu « u » (کتابو). Le remplacer par un zamma pour la voix (کتابُ). Mais اینو et رو étaient justes tels quels : vérifier avant de toucher.
+- L'ezafé non écrit est la première cause d'erreur (8 signalements sur 25 pour les Jours 3 et 4). Selon la phrase, c'est le ه (ساعته ده, دمه دره) ou le kasra (ساعَتِ ده, عاشِقِ) qui marche : toujours proposer les deux au labo.
+- Un ezafé parasite se supprime avec une virgule pour la voix (شیرینیش، گیاهی ; انار کیلویی، چند است).
+- Pour un mot isolé mal accentué, la voix de Farid sans retouche a gagné six fois sur neuf à la série 6.
+- La poésie classique ne passe pas en voix de synthèse : il faut un lecteur humain.
 - Rien n'est vérifiable sans oreille : chaque changement passe par le labo ou par un signalement dans l'app (drapeau en haut de chaque écran, liste dans Profil).
 
 ## Limites connues du prototype
