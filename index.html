@@ -348,6 +348,15 @@ span.chip.fa { font-size: 1.15rem; font-weight: 600; padding: 4px 12px; }
 (function () {
 'use strict';
 const C = window.CONTENT, AUDIO = window.AUDIO || {}, KT = window.KARAOKE_TIMING || {};
+// Notes are written « می‌شه → می‌شود ». Between two Persian words the pair is laid out right to
+// left but the arrow glyph is not mirrored, so it would point back at the first word. Turn it.
+(function turnArrows(o) {
+  if (!o || typeof o !== 'object') return;
+  Object.keys(o).forEach(k => {
+    if (k === 'note' && typeof o[k] === 'string') o[k] = o[k].replace(/([؀-ۿ])(\s*)→(\s*)(?=[؀-ۿ])/g, '$1$2←$3');
+    else turnArrows(o[k]);
+  });
+})(C);
 const $app = document.getElementById('app');
 const DAILY_GOAL = 30;
 
@@ -854,7 +863,7 @@ RENDER.register_build = (ex, area) => {
   function redraw() { ans.innerHTML = ''; chosen.forEach((t, i) => ans.appendChild(h('button', { class: 'tile', type: 'button', onclick: () => { chosen.splice(i, 1); t.el.classList.remove('used'); redraw(); } }, t.text))); r.onReady(chosen.length > 0); }
   all.forEach(text => { const el = h('button', { class: 'tile', type: 'button' }, text); el.addEventListener('click', () => { el.classList.add('used'); chosen.push({ text, el }); redraw(); }); tiles.appendChild(el); });
   area.append(h('h2', null, 'Récris la phrase en registre soutenu'), h('div', { class: 'row' }, h('div', { class: 'speech' }, h('span', { class: 'tag' }, 'à l’oral'), d.familier), smallPlay(d.familier)), h('div', { class: 'q-fr' }, '« ' + d.fr + ' »'), ans, tiles);
-  const r = { check() { const got = chosen.map(t => t.text).join(' '); const want = d.tiles.join(' '); const ok = got === want; ans.classList.add(ok ? 'ok' : 'bad'); if (ok) play(d.answer); return { ok, correct: ok ? null : d.answer, note: esc(d.note) }; } };
+  const r = { check() { const got = chosen.map(t => t.text).join(' '); const want = d.tiles.join(' '); const ok = got === want || (d.alt || []).some(a => a.join(' ') === got); /* alt: other correct sentences, e.g. without آیا */ ans.classList.add(ok ? 'ok' : 'bad'); if (ok) play(d.answer); return { ok, correct: ok ? null : d.answer, note: esc(d.note) }; } };
   return r;
 };
 RENDER.build = (ex, area) => {

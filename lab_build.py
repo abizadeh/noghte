@@ -9,58 +9,58 @@ os.makedirs(OUT, exist_ok=True)
 VOICES = {"dilara": "fa-IR-DilaraNeural", "farid": "fa-IR-FaridNeural"}
 
 # word shown to the learner -> candidates. A candidate is (text the voice reads, voice), or
-# (text with a | before the part to raise, voice, pitch of that part[, its speed]): see twopart.py.
-ROUND = 8  # bump when the candidates change; shown at the top of lab.html
-Q = 'می‌شود تخفیف '
+# (parts, voice, note) where parts is a sentence with raised stretches (see raised.py) and note
+# says in French what was raised.
+ROUND = 9  # bump when the candidates change; shown at the top of lab.html
+AYA, MI, MID = 'آیا', 'می‌شود', ' تخفیف بِدَ'
+END50, END30 = ('هید؟', '+50%'), ('هید؟', '+30%')
 GROUPS = [
-    # round 8: the question that still sounded like a statement. The voice never ends a question
-    # high by itself (measured), so the end is raised by hand.
-    ('می‌شود تخفیف بدهید؟',
-     "le ton d'une question. Cette voix ne monte jamais d'elle-même à la fin d'une question : ici je la force. "
-     "De A à D, seule la dernière syllabe (-hid) est dite plus haut, après un creux : c'est la forme que décrivent les études sur l'intonation du persan. "
-     "Pour E et F, tout le dernier mot est dit plus haut. Vérifie aussi que بدهید reste bien prononcé, car il est coupé en deux pour la voix",
-     [(Q + 'بِدَ|هید؟', 'dilara', '+30%'), (Q + 'بِدَ|هید؟', 'dilara', '+50%'), (Q + 'بِدَ|هید؟', 'dilara', '+50%', '-20%'),
-      (Q + 'بِدَ|هید؟', 'farid', '+50%'), (Q + '|بدهید؟', 'dilara', '+35%'), (Q + '|بدهید؟', 'dilara', '+50%')]),
+    # round 9: after round 8 (D best, none great). The opening word sounded like an assertion,
+    # and the sentence should start with آیا. Farid, last syllable raised as in round 8 D.
+    ('آیا می‌شود تخفیف بدهید؟',
+     "le ton d'une question, avec آیا en tête et la voix de Farid (ton choix D). Cette fois le début de la phrase est touché aussi : "
+     "dit plus haut (A, B, C, E) ou avec la fin de می‌شود qui monte (D). F sert de repère : la fin de la série 8, sans toucher au début. "
+     "Si aucune n'est vraiment bonne, la phrase reste sans son",
+     [([(AYA + ' ' + MI, '+20%'), MID, END50], 'farid', 'début un peu plus haut, dernière syllabe haute'),
+      ([(AYA + ' ' + MI, '+35%'), MID, END50], 'farid', 'début nettement plus haut, dernière syllabe haute'),
+      ([AYA + ' ', (MI, '+35%'), MID, END50], 'farid', 'seul می‌شود plus haut, dernière syllabe haute'),
+      ([AYA + ' می‌شَ', ('وَد', '+35%'), MID, END50], 'farid', 'la fin de می‌شود monte, dernière syllabe haute'),
+      ([(AYA + ' ' + MI, '+25%'), MID, END30], 'farid', 'début plus haut, dernière syllabe un peu haute'),
+      ([AYA + ' ' + MI + MID, END50], 'farid', 'repère : début non touché, dernière syllabe haute')]),
 ]
 
 def h(s):
     return hashlib.md5(s.encode("utf-8")).hexdigest()[:10]
 
-def parts(v):
-    return v[0], v[1], (v[2] if len(v) > 2 else None), (v[3] if len(v) > 3 else "+0%")
+def raised(v):
+    return not isinstance(v[0], str)
+
+def spoken(v):
+    return "".join(p if isinstance(p, str) else p[0] for p in v[0]) if raised(v) else v[0]
 
 def clip(v):
-    text, voice, pitch, rate = parts(v)
-    return h(voice + "|" + text + ("|" + pitch + "|" + rate if pitch else "")) + ".mp3"
-
-def voice_label(v):
-    text, voice, pitch, rate = parts(v)
-    if not pitch:
-        return voice
-    what = "dernier mot plus haut" if text[text.index("|") - 1] == " " else "dernière syllabe plus haute"
-    return voice + " · " + what + " (" + pitch + ")" + (", plus lente" if rate != "+0%" else "")
+    return h(v[1] + "|" + (json.dumps(v[0], ensure_ascii=False) if raised(v) else v[0])) + ".mp3"
 
 async def gen(sem, v):
     import edge_tts
-    text, voice, pitch, rate = parts(v)
     path = os.path.join(OUT, clip(v))
     if os.path.exists(path) and os.path.getsize(path) > 1000:
         return
     async with sem:
         for attempt in range(4):
             try:
-                if pitch:
-                    from twopart import save_two_part
-                    await save_two_part(text, VOICES[voice], path, pitch, rate)
+                if raised(v):
+                    from raised import save_raised
+                    await save_raised(v[0], VOICES[v[1]], path)
                 else:
-                    await edge_tts.Communicate(text, VOICES[voice]).save(path)
+                    await edge_tts.Communicate(v[0], VOICES[v[1]]).save(path)
                 if os.path.getsize(path) > 1000:
                     return
-            except RuntimeError:
+            except (RuntimeError, ValueError):
                 raise
             except Exception:
                 await asyncio.sleep(1.5 * (attempt + 1))
-        print("FAILED", text, voice)
+        print("FAILED", spoken(v), v[1])
 
 async def main():
     sem = asyncio.Semaphore(4)
@@ -70,7 +70,7 @@ asyncio.run(main())
 lab = []
 for word, latin, vs in GROUPS:
     lab.append({"word": word, "latin": latin, "variants": [
-        {"label": chr(65 + i), "text": v[0].replace("|", ""), "voice": voice_label(v), "src": "audio/lab/" + clip(v)} for i, v in enumerate(vs)]})
+        {"label": chr(65 + i), "text": spoken(v), "voice": v[1] + (" · " + v[2] if raised(v) else ""), "src": "audio/lab/" + clip(v)} for i, v in enumerate(vs)]})
 with open(os.path.join(HERE, "lab.js"), "w", encoding="utf-8") as f:
     f.write("window.LAB = " + json.dumps(lab, ensure_ascii=False) + ";\n")
     f.write("window.LAB_ROUND = " + json.dumps(ROUND) + ";\n")

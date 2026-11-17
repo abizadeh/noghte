@@ -58,6 +58,11 @@ Ce qui a été ajouté au moteur :
 
 Pour ajouter un jour : ajouter les mots dans `words`, les exercices dans les listes (`pairs`, `spell`, `dots`, `fixdots`, `register_mc`, `register_build`, `build`, `mc`, toujours à la fin, car les leçons y renvoient par numéro), l'unité dans `units`, les textes dans `readings` avec leurs mots dans `lexicon`, puis lancer `python build.py` et faire l'écoute de contrôle.
 
+Deux détails pour `register_build` et les notes :
+
+- `alt` : d'autres suites de tuiles justes, en plus de `tiles` (ex. la question sans آیا). L'app accepte l'une ou l'autre et montre `answer` comme corrigé.
+- Dans une `note`, écrire les paires `familier → soutenu` avec `→` et les deux mots persans côte à côte. L'app retourne la flèche à l'affichage quand elle est entre deux mots persans, car le couple s'affiche de droite à gauche.
+
 ## Mécanismes ajoutés après les premiers retours (novembre 2026)
 
 - **Reprise d'une leçon.** Quitter une leçon en route garde la place (`S.resume[id]` : exercices restants, exercices à refaire, score). Le parcours affiche « Reprendre » et propose de reprendre ou de recommencer. Si la liste d'exercices d'une leçon change, la reprise enregistrée est ignorée.
@@ -103,7 +108,9 @@ Ce qu'on a appris au fil des séries :
 - Un ezafé parasite se supprime avec une virgule pour la voix (شیرینیش، گیاهی ; انار کیلویی، چند است).
 - Pour un mot isolé mal accentué, la voix de Farid sans retouche a gagné six fois sur neuf à la série 6.
 - La poésie classique ne passe pas en voix de synthèse : il faut un lecteur humain.
-- Le ton des questions fermées (série 8). Mesuré sur tous les clips de questions : la voix ne finit jamais haut, la hauteur redescend toujours. Sur une question soutenue (می‌شود تخفیف بدهید؟) elle redescend autant que dans une affirmation. Ni آیا, ni la ponctuation, ni لطفاً, ni un clip coupé avant « یا نه » n'y changent rien. Les études sur l'intonation du persan (Sadat-Tehrani 2011 ; Sadeghi 2021) décrivent une fin haute après un creux, avec un dernier accent plus haut. Le service refuse une courbe de hauteur, mais accepte deux blocs côte à côte : `twopart.py` dit la fin de la phrase plus haut (tout le dernier mot, ou sa dernière syllabe : `بِدَ|هید؟`). Dans `lab_build.py`, une variante s'écrit alors `(texte avec |, voix, hauteur[, vitesse])`. `build.py` ne connaît pas encore cette forme : à ajouter si une variante est retenue.
+- Le ton des questions fermées (série 8). Mesuré sur tous les clips de questions : la voix ne finit jamais haut, la hauteur redescend toujours. Sur une question soutenue (می‌شود تخفیف بدهید؟) elle redescend autant que dans une affirmation. Ni آیا, ni la ponctuation, ni لطفاً, ni un clip coupé avant « یا نه » n'y changent rien. Les études sur l'intonation du persan (Sadat-Tehrani 2011 ; Sadeghi 2021) décrivent une fin haute après un creux, avec un dernier accent plus haut. Le service refuse une courbe de hauteur et refuse trois blocs, mais accepte deux blocs avec du texte nu autour : `raised.py` dit jusqu'à deux passages plus haut (le début, et le dernier mot ou sa dernière syllabe : `بِدَ` + `هید؟`). Dans `lab_build.py`, une variante s'écrit alors `(parties, voix, note)`. `build.py` ne connaît pas encore cette forme : à ajouter si une variante est retenue.
+- Série 8 : la dernière syllabe haute avec Farid était « la moins mauvaise », aucune vraiment bonne. Le défaut restant est sur le premier mot : می‌شود sonne comme une affirmation. La série 9 relève aussi le début. Si rien n'est vraiment bon, la phrase reste sans son : mieux vaut pas de son qu'un ton approximatif.
+- Conséquence pour les prochains jours : une question fermée en registre soutenu (آیا … ؟, می‌شود … ؟) risque de sonner comme une affirmation. La mettre dans `mute` d'emblée, ou la faire écouter avant de publier.
 - Rien n'est vérifiable sans oreille : chaque changement passe par le labo ou par un signalement dans l'app (drapeau en haut de chaque écran, liste dans Profil).
 
 ## Limites connues du prototype
