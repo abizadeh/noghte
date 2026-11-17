@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Noghte · écoute de contrôle</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Vazirmatn:wght@400;600&display=swap">
+<style>
+  :root { --bg: #f1f5f6; --surface: #fff; --fg: #14222a; --muted: #5d6e78; --line: #d3dde3; --accent: #2457c5; --accent-soft: #dfe8fb; --pom: #c4323a; --pom-soft: #f8dadc; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0e1821; --surface: #162330; --fg: #e8eef2; --muted: #93a5b2; --line: #2a3e50; --accent: #6d97ff; --accent-soft: #1d2f52; --pom: #ff6f74; --pom-soft: #4a1c20; } }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: Outfit, system-ui, sans-serif; padding: 16px max(16px, env(safe-area-inset-left)) 120px; }
+  main { max-width: 620px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+  h1 { font-size: 1.5rem; margin: 0; } h2 { font-size: 1.05rem; margin: 0; } p { margin: 0; color: var(--muted); }
+  .stamp { font-weight: 700; color: var(--accent); }
+  .unit { font-size: .78rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-top: 10px; }
+  .group { background: var(--surface); border: 2px solid var(--line); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 4px; }
+  .clip { display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 10px; border-top: 1px solid var(--line); padding: 8px 0; }
+  .clip.bad { background: var(--pom-soft); border-radius: 10px; padding: 8px; border-top-color: transparent; }
+  .txt { font-family: Vazirmatn, sans-serif; direction: rtl; font-size: 1.25rem; line-height: 1.7; text-align: right; }
+  .meta { font-size: .78rem; color: var(--muted); }
+  .meta .fa { font-family: Vazirmatn, sans-serif; direction: rtl; unicode-bidi: isolate; font-size: .95rem; }
+  .play { width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--accent); color: #fff; font-size: 1.05rem; cursor: pointer; }
+  .tick { display: flex; align-items: center; gap: 6px; font-size: .9rem; white-space: nowrap; }
+  .note { grid-column: 1 / -1; min-height: 40px; border-radius: 10px; border: 2px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; padding: 6px 10px; }
+  .bar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--surface); border-top: 2px solid var(--line); padding: 12px max(16px, env(safe-area-inset-left)) calc(12px + env(safe-area-inset-bottom)); }
+  .bar .in { max-width: 620px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+  .btn { min-height: 48px; border: 0; border-radius: 12px; background: var(--accent); color: #fff; font: inherit; font-weight: 700; font-size: 1rem; padding: 10px 16px; cursor: pointer; }
+  .count { flex: 1; font-weight: 700; }
+  textarea { width: 100%; min-height: 110px; border-radius: 12px; border: 2px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; padding: 10px; box-sizing: border-box; }
+  .toast { position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-weight: 700; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Écoute de contrôle</h1>
+  <p class="stamp" id="stamp">Chargement…</p>
+  <p>Tous les nouveaux clips, leçon par leçon. Écoute chacun une fois. Si la voix se trompe, coche « faux » et écris ce qu'elle dit de travers si tu veux. À la fin, « Copier » prépare la liste à m'envoyer. Tes coches sont gardées sur cet appareil, tu peux t'arrêter et reprendre.</p>
+  <div id="groups"></div>
+  <div class="group">
+    <b>Ce qui est faux</b>
+    <textarea id="out" readonly placeholder="Les clips cochés apparaissent ici."></textarea>
+  </div>
+</main>
+<div class="bar"><div class="in"><div class="count" id="count"></div><button class="btn" id="copy" type="button">Copier</button></div></div>
+<script>
+function startCheck() {
+  const player = new Audio(); const KEY = 'noghte_check_v1';
+  let marks = {}; try { marks = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(marks)); } catch (e) {} };
+  const groups = document.getElementById('groups'), out = document.getElementById('out'), count = document.getElementById('count');
+  let total = 0, heard = new Set();
+  function refresh() {
+    const lines = [];
+    window.CHECK.forEach(g => g.clips.forEach(c => { const m = marks[c.t]; if (m && m.bad) lines.push(g.lesson + ' · ' + c.t + (m.note ? ' · ' + m.note : '')); }));
+    out.value = lines.join('\n');
+    count.textContent = heard.size + ' écoutés sur ' + total + ' · ' + lines.length + ' faux';
+  }
+  let lastUnit = '';
+  window.CHECK.forEach(g => {
+    if (g.unit !== lastUnit) { const u = document.createElement('div'); u.className = 'unit'; u.textContent = g.unit; groups.appendChild(u); lastUnit = g.unit; }
+    const box = document.createElement('div'); box.className = 'group';
+    const h2 = document.createElement('h2'); h2.textContent = g.lesson; box.appendChild(h2);
+    g.clips.forEach(c => {
+      total++;
+      const row = document.createElement('div'); row.className = 'clip';
+      const b = document.createElement('button'); b.className = 'play'; b.type = 'button'; b.textContent = '▶'; b.setAttribute('aria-label', 'Écouter');
+      b.addEventListener('click', () => { player.pause(); player.src = c.src; player.currentTime = 0; player.play().catch(() => {}); heard.add(c.t); refresh(); });
+      const mid = document.createElement('div');
+      const txt = document.createElement('div'); txt.className = 'txt'; txt.textContent = c.t; mid.appendChild(txt);
+      const meta = document.createElement('div'); meta.className = 'meta'; meta.textContent = c.v + (c.s ? ' · la voix reçoit : ' : '');
+      if (c.s) { const sp = document.createElement('span'); sp.className = 'fa'; sp.textContent = c.s; meta.appendChild(sp); }
+      mid.appendChild(meta);
+      const tick = document.createElement('label'); tick.className = 'tick';
+      const cb = document.createElement('input'); cb.type = 'checkbox';
+      const note = document.createElement('input'); note.type = 'text'; note.className = 'note'; note.placeholder = 'Ce que la voix dit de travers (facultatif)'; note.hidden = true;
+      const m0 = marks[c.t]; if (m0 && m0.bad) { cb.checked = true; row.classList.add('bad'); note.hidden = false; note.value = m0.note || ''; }
+      cb.addEventListener('change', () => { marks[c.t] = { bad: cb.checked, note: note.value }; row.classList.toggle('bad', cb.checked); note.hidden = !cb.checked; save(); refresh(); });
+      note.addEventListener('input', () => { marks[c.t] = { bad: cb.checked, note: note.value }; save(); refresh(); });
+      tick.append(cb, 'faux'); row.append(b, mid, tick, note); box.appendChild(row);
+    });
+    groups.appendChild(box);
+  });
+  document.getElementById('copy').addEventListener('click', () => {
+    const text = out.value || 'Rien de faux.'; const done = () => { const t = document.createElement('div'); t.className = 'toast'; t.textContent = 'Copié'; document.body.appendChild(t); setTimeout(() => t.remove(), 1500); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done).catch(() => { out.select(); document.execCommand('copy'); done(); });
+    else { out.select(); document.execCommand('copy'); done(); }
+  });
+  refresh();
+}
+(function () {
+  // check.js changes with every build; a timestamp on the URL means the browser can never reuse an old copy
+  var sc = document.createElement('script');
+  sc.src = 'check.js?t=' + Date.now();
+  sc.onload = function () { document.getElementById('stamp').textContent = 'Généré le ' + (window.CHECK_BUILT || '?'); startCheck(); };
+  sc.onerror = function () { document.getElementById('stamp').textContent = 'Impossible de charger la liste. Recharge la page.'; };
+  document.head.appendChild(sc);
+})();
+</script>
+</body>
+</html>

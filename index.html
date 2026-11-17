@@ -336,6 +336,8 @@ input.fa { font-family: var(--font-fa); font-size: 1.4rem; }
 .rush-fr { text-align: center; color: var(--muted); font-weight: 600; margin-top: -10px; min-height: 1.4em; }
 span.chip { display: inline-block; }
 span.chip.fa { font-size: 1.15rem; font-weight: 600; padding: 4px 12px; }
+.showbox { font-family: var(--font-fa); direction: rtl; font-size: 1.45rem; font-weight: 600; line-height: 1.9; background: var(--surface); border: 2px solid var(--line); border-radius: 14px; padding: 12px 16px; text-align: center; }
+.reg-table .ltrcell { font-family: var(--font-ui); direction: ltr; font-weight: 700; }
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(96px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-weight: 700; z-index: 30; animation: up .2s ease-out; }
 </style>
 
@@ -350,14 +352,14 @@ const $app = document.getElementById('app');
 const DAILY_GOAL = 30;
 
 /* ---------- state ---------- */
-const DEFAULT = { v: 2, name: '', interests: [], placed: false, skills: { points: 0, orthographe: 0, registre: 0, vocabulaire: 0 }, baseRank: 800, done: {}, learned: {}, xp: 0, xpToday: 0, today: '', streak: 0, lastActive: '', rushBest: 0, dotsOk: 0, badges: {}, demo: false, flags: [], resume: {}, rush: { w: {}, f: {}, c: {} } };
+const DEFAULT = { v: 2, name: '', interests: [], placed: false, skills: { points: 0, orthographe: 0, registre: 0, vocabulaire: 0 }, baseRank: 800, done: {}, learned: {}, xp: 0, xpToday: 0, today: '', streak: 0, lastActive: '', rushBest: 0, dotsOk: 0, badges: {}, demo: false, flags: [], resume: {}, miss: {}, rush: { w: {}, f: {}, c: {} } };
 function fresh() { return JSON.parse(JSON.stringify(DEFAULT)); }
 function load() {
   try {
     const s = JSON.parse(localStorage.getItem('noghte_v1') || 'null');
     if (s) {
       const m = Object.assign(fresh(), s), f = fresh();
-      ['done', 'learned', 'badges', 'flags', 'resume', 'skills'].forEach(k => { if (!m[k] || typeof m[k] !== 'object') m[k] = f[k]; });
+      ['done', 'learned', 'badges', 'flags', 'resume', 'skills', 'miss'].forEach(k => { if (!m[k] || typeof m[k] !== 'object') m[k] = f[k]; });
       if (!m.rush || !m.rush.w || !m.rush.f || !m.rush.c) m.rush = f.rush;
       return m;
     }
@@ -419,6 +421,18 @@ const ICON = {
   rush: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="7" r="2.5"/><circle cx="12" cy="17" r="2.5"/><path d="M7 7l5 10 5-10" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
   user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>',
   lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+  num: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 4 7 20M17 4l-2 16M4 9h17M3 15h17"/></svg>',
+  cart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h16l-1.5 9a2 2 0 0 1-2 1.7H7.5a2 2 0 0 1-2-1.7z"/><path d="M8 9l3-5M16 9l-3-5"/></svg>',
+  tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.3"/></svg>',
+  list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>',
+  smile: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.5a4.5 4.5 0 0 0 7 0"/><path d="M9 9.5h.01M15 9.5h.01"/></svg>',
+  film: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 5v14M16 5v14M3 10h5M3 14h5M16 10h5M16 14h5"/></svg>',
+  ball: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5l4 3-1.5 4.5h-5L8 10.5z"/></svg>',
+  heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/></svg>',
+  link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>',
+  abc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18l4-12 4 12M4.5 14h5"/><path d="M15 9h6l-6 9h6"/></svg>',
+  feather: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4c-8 0-13 5-13 12v4"/><path d="M7 16c6 0 11-3 13-12"/><path d="M4 20l6-6"/></svg>',
+  review: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 14-5l2 2"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 0 1-14 5l-2-2"/><path d="M4 20v-5h5"/></svg>',
   flag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"/><path d="M5 4h12l-2.5 4L17 12H5"/></svg>'
 };
 
@@ -427,7 +441,7 @@ const FLAG_REASONS = ['La prononciation', 'C’est confus', 'C’est faux', 'Tro
 function exLabel(ex) {
   if (!ex) return '';
   const d = ex.data || {};
-  const key = { pair: () => d.words && d.words[ex.promptIdx], dots: () => d.word, fixdots: () => d.correct, spell: () => d.word, register_mc: () => d.familier, register_build: () => d.familier, build: () => d.word && W[d.word] && W[d.word].fa, vocab: () => d.fa, vocab_check: () => d.fa, vocab_check_rev: () => d.fa, explain: () => d.title }[ex.type];
+  const key = { pair: () => d.words && d.words[ex.promptIdx], dots: () => d.word, fixdots: () => d.correct, spell: () => d.word, register_mc: () => d.familier, register_build: () => d.familier, build: () => d.word && W[d.word] && W[d.word].fa, vocab: () => d.fa, vocab_check: () => d.fa, vocab_check_rev: () => d.fa, explain: () => d.title, mc: () => d.show || d.audio || d.q }[ex.type];
   return ex.type + (key && key() ? ' : ' + key() : '');
 }
 function flagButton(ctx) { const b = h('button', { class: 'iconbtn', type: 'button', 'aria-label': 'Signaler un problème', title: 'Signaler', onclick: () => flagSheet(ctx) }); b.innerHTML = ICON.flag; return b; }
@@ -596,13 +610,15 @@ function tabBtn(id, icon, label) { return h('button', { class: 'tab' + (currentT
 function renderTab() { const v = document.getElementById('view'); v.innerHTML = ''; ({ path: renderPath, rush: renderRushHome, read: renderReadHome, profile: renderProfile })[currentTab](v); }
 
 /* ---------- path ---------- */
-function allLessons() { return C.units.flatMap(u => u.lessons); }
+// A unit marked draft in content.json is still being checked by ear: it shows only in demo mode.
+function units() { return C.units.filter(u => !u.draft || S.demo); }
+function allLessons() { return units().flatMap(u => u.lessons); }
 function isUnlocked(lessonId) { if (S.demo) return true; const L = allLessons(); const i = L.findIndex(l => l.id === lessonId); return i === 0 || !!S.done[L[i - 1].id]; }
 function renderPath(v) {
   v.appendChild(h('div', { class: 'cat-row', style: 'margin-top:6px' }, catSVG(64), h('div', { class: 'bubble grow' }, catLine())));
   v.appendChild(h('div', { class: 'card row', style: 'margin-top:14px' }, h('div', { class: 'grow stack', style: 'gap:6px' }, h('div', { class: 'eyebrow' }, 'Couverture de lecture'), meter(coverage())), h('div', { class: 'bignum' }, Math.round(coverage() * 100) + '%')));
   let foundCurrent = false, k = 0;
-  C.units.forEach(u => {
+  units().forEach(u => {
     v.appendChild(h('div', { class: 'unit-head' }, h('div', null, h('div', { class: 'sub' }, u.title), h('h2', null, u.subtitle)), h('div', { class: 'uicon' }, u.icon)));
     const path = h('div', { class: 'path' });
     u.lessons.forEach(l => {
@@ -619,9 +635,9 @@ function renderPath(v) {
     });
     v.appendChild(path);
   });
-  v.appendChild(h('p', { class: 'muted', style: 'text-align:center;font-size:.9rem;margin-top:10px' }, 'Prototype : deux jours du parcours. Les jours suivants s’ajoutent au même format.'));
+  v.appendChild(h('p', { class: 'muted', style: 'text-align:center;font-size:.9rem;margin-top:10px' }, units().length + ' jours pour l’instant. Les suivants s’ajoutent au même format.'));
 }
-function openLesson(l) { if (l.kind === 'lesson') startLesson(l); else if (l.kind === 'reading') renderReading(l); else if (l.kind === 'chat') renderChat(l); else if (l.kind === 'karaoke') renderKaraoke(l); }
+function openLesson(l) { if (l.kind === 'lesson') startLesson(l); else if (l.kind === 'review') startReview(l); else if (l.kind === 'reading') { if (l.variants) variantSheet(l); else renderReading(l); } else if (l.kind === 'chat') renderChat(l); else if (l.kind === 'karaoke') renderKaraoke(l); }
 
 /* ---------- lesson runner ---------- */
 function expand(ex, lesson) {
@@ -634,6 +650,7 @@ function expand(ex, lesson) {
   if (e.type === 'register_build') e.data = C.register_build[e.item];
   if (e.type === 'build') e.data = C.build[e.item];
   if (e.type === 'explain') e.data = C.explain[e.item];
+  if (e.type === 'mc') e.data = C.mc[e.item];
   if (e.type === 'vocab' || e.type === 'vocab_check' || e.type === 'vocab_check_rev') { e.data = W[e.word]; e.pool = e.pool || lessonWordPool(lesson); }
   return e;
 }
@@ -668,6 +685,41 @@ function startLesson(lesson, how) {
     S.done[lesson.id] = true; addXP(xp); if (first) S.badges.first = true; save();
     renderEnd({ xp, correct: stats.correct, total: stats.total });
   } });
+}
+// Review: a short session rebuilt each time from this learner's own mistakes.
+// Every graded exercise has a key; a first-try miss adds to S.miss[key], a later first-try success removes from it.
+const GRADED = { pair: 1, dots: 1, fixdots: 1, spell: 1, register_mc: 1, register_build: 1, build: 1, vocab_check: 1, vocab_check_rev: 1, mc: 1 };
+function exKey(ex) { return ex.type === 'pair' ? 'pair:' + ex.pair + ':' + ex.prompt : ex.type + ':' + (ex.item !== undefined ? ex.item : ex.word); }
+function noteAnswer(ex, ok) {
+  if (!GRADED[ex.type]) return; const k = exKey(ex);
+  if (!ok) S.miss[k] = Math.min(3, (S.miss[k] || 0) + 1);
+  else if (S.miss[k]) { S.miss[k]--; if (S.miss[k] <= 0) delete S.miss[k]; }
+  save();
+}
+function buildReview() {
+  const pool = [], seen = new Set();
+  allLessons().filter(l => l.kind === 'lesson' && S.done[l.id]).forEach(l => l.exercises.forEach(ex => { if (!GRADED[ex.type]) return; const k = exKey(ex); if (seen.has(k)) return; seen.add(k); pool.push({ ex, l, k }); }));
+  const missed = shuffle(pool.filter(p => S.miss[p.k])).sort((a, b) => S.miss[b.k] - S.miss[a.k]).slice(0, 6);   // own mistakes first
+  const rest = shuffle(pool.filter(p => !S.miss[p.k])).slice(0, Math.max(2, 8 - missed.length));               // then older material, so it is not forgotten
+  return { items: shuffle(missed.concat(rest)).map(p => expand(p.ex, p.l)), missed: missed.length };
+}
+function startReview(l) {
+  const r = buildReview();
+  if (!r.items.length) { toast('Rien à réviser pour l’instant.'); return; }
+  runExercises(r.items, { title: l.title, onAnswer: () => {}, onDone: stats => {
+    const xp = 8 + 2 * stats.correct; S.done[l.id] = true; addXP(xp); save();
+    renderEnd({ xp, correct: stats.correct, total: stats.total, note: r.missed ? 'Cette révision reprenait ' + r.missed + ' exercice' + (r.missed > 1 ? 's' : '') + ' que tu avais ratés avant.' : 'Aucune ancienne erreur à reprendre : des exercices déjà vus, pour ne pas oublier.' });
+  } });
+}
+// A reading lesson can offer several texts; the ones matching the learner's interests are put forward.
+function variantSheet(l) {
+  const mine = v => (v.interests || []).some(i => (S.interests || []).includes(i));
+  const bg = h('div', { class: 'sheet-bg', onclick: e => { if (e.target === bg) bg.remove(); } });
+  bg.appendChild(h('div', { class: 'sheet' }, h('div', { class: 'handle' }),
+    h('div', { style: 'font-weight:800;font-size:1.15rem' }, 'Choisis ton texte'),
+    h('div', { class: 'note' }, 'Un seul suffit pour valider la leçon. Tu peux revenir lire l’autre.'),
+    l.variants.map(v => h('button', { class: 'btn ' + (mine(v) ? '' : 'ghost'), type: 'button', onclick: () => { bg.remove(); renderReading(l, v.reading); } }, h('span', { class: 'fa', style: 'font-size:1.25rem' }, v.label), ' · ' + v.fr))));
+  document.body.appendChild(bg);
 }
 function runExercises(items, opts) {
   items.forEach((e, i) => { if (e.__i === undefined) e.__i = i; });
@@ -712,14 +764,14 @@ function runExercises(items, opts) {
     btn.addEventListener('click', () => {
       const res = r.check(); const first = !answered[ex.__i];
       answered[ex.__i] = true;
-      if (first) { stats.total++; if (res.ok) stats.correct++; opts.onAnswer(ex, res.ok); }
+      if (first) { stats.total++; if (res.ok) stats.correct++; opts.onAnswer(ex, res.ok); if (!opts.placement) noteAnswer(ex, res.ok); }
       if (!res.ok && !opts.placement && !retry.includes(ex)) retry.push(ex);
       persist(null);
       inner.innerHTML = ''; bar.classList.add(res.ok ? 'good' : 'bad');
       const fb = h('div', { class: 'fb ' + (res.ok ? 'good' : 'bad') });
       const word = res.ok ? pick(C.feedback.good) : C.feedback.bad[0];
       fb.appendChild(h('div', { class: 'fb-title' }, h('span', { class: 'fa' }, word), res.ok ? 'Bien joué' : 'Pas tout à fait'));
-      if (res.correct) fb.appendChild(h('div', { class: 'fb-body' }, 'Réponse : ', h('span', { class: 'fa' }, res.correct)));
+      if (res.correct) fb.appendChild(h('div', { class: 'fb-body' }, 'Réponse : ', h('span', { class: res.latin ? 'ltr' : 'fa', style: res.latin ? 'font-weight:700' : null }, res.correct)));
       if (res.note && !opts.placement) fb.appendChild(h('div', { class: 'fb-body', html: res.note }));
       if (!res.ok && !opts.placement) fb.appendChild(h('div', { class: 'fb-body muted' }, 'Tu peux réessayer tout de suite. Dans tous les cas, cet exercice revient à la fin de la leçon.'));
       inner.appendChild(fb); play(word);
@@ -843,10 +895,24 @@ RENDER.vocab_check_rev = (ex, area) => {
   const r = { check() { const ok = list.value() === ex.word; list.reveal(ex.word); if (ok) markLearned(ex.word); return { ok, correct: ok ? null : w.fa, note: '' }; } };
   return r;
 };
+// A general question: something to read or hear (a number, a price, a label), then a choice.
+RENDER.mc = (ex, area) => {
+  const d = ex.data;
+  const list = optionList(shuffle(d.options).map(v => ({ value: v, label: v, fa: !!d.optFa })), () => r.onReady(true));
+  [h('h2', null, d.q),
+    d.audio ? h('div', { class: 'center' }, bigPlay(d.audio), h('div', { class: 'q-fr' }, 'Écoute, puis choisis. Le haut-parleur rejoue.')) : null,
+    d.show ? h('div', { class: d.box ? 'showbox' : 'bigword' }, d.show) : null,
+    d.sub ? h('div', { class: 'q-fr' }, d.sub) : null,
+    list].filter(Boolean).forEach(x => area.appendChild(x));
+  const r = { check() { const ok = list.value() === d.answer; list.reveal(d.answer); return { ok, correct: ok ? null : d.answer, latin: !d.optFa, note: esc(d.note || '') }; }, onShow() { if (d.audio) setTimeout(() => play(d.audio), 350); } };
+  return r;
+};
 RENDER.explain = (ex, area) => {
-  const d = ex.data; const t = h('div', { class: 'reg-table' }, h('div', { class: 'hd' }, 'À l’oral'), h('div'), h('div', { class: 'hd' }, 'À l’écrit'));
-  d.examples.forEach(([a, b]) => { t.append(h('button', { class: 'fa', type: 'button', onclick: () => play(a) }, a), h('span', { class: 'arrow' }, '→'), h('button', { class: 'fa', type: 'button', onclick: () => play(b) }, b)); });
-  area.append(h('div', { class: 'explain-card' }, h('div', { class: 'eyebrow' }, 'Registre de langue'), h('h2', { html: d.title.replace(/([؀-ۿ‌]+)/g, '<span class="fa">$1</span>') }), h('p', null, d.body), t, h('p', { class: 'muted', style: 'font-size:.9rem' }, 'Touche un mot pour l’entendre.')));
+  const d = ex.data; const cols = d.cols || ['À l’oral', 'À l’écrit']; let anyAudio = false;
+  const t = h('div', { class: 'reg-table' }, h('div', { class: 'hd' }, cols[0]), h('div'), h('div', { class: 'hd' }, cols[1]));
+  const cell = txt => { if (AUDIO[txt]) { anyAudio = true; return h('button', { class: 'fa', type: 'button', onclick: () => play(txt) }, txt); } return h('div', { class: /[؀-ۿ]/.test(txt) ? 'fa' : 'fa ltrcell' }, txt); };
+  d.examples.forEach(([a, b]) => { t.append(cell(a), h('span', { class: 'arrow' }, '→'), cell(b)); });
+  area.append(h('div', { class: 'explain-card' }, h('div', { class: 'eyebrow' }, d.eyebrow || 'Registre de langue'), h('h2', { html: esc(d.title).replace(/([؀-ۿ‌]+)/g, '<span class="fa">$1</span>') }), h('p', null, d.body), t, anyAudio ? h('p', { class: 'muted', style: 'font-size:.9rem' }, 'Touche un mot pour l’entendre.') : null));
   return { auto: true };
 };
 RENDER.dots = (ex, area) => {
@@ -910,7 +976,7 @@ function renderReadHome(v) {
   v.appendChild(h('h2', { style: 'margin-top:8px' }, 'Lecture'));
   v.appendChild(h('p', { class: 'muted' }, 'Des textes, un chat et un karaoké. Chacun se débloque sur le parcours.'));
   const list = h('div', { class: 'ex-list' });
-  allLessons().filter(l => l.kind !== 'lesson').forEach(l => { const un = isUnlocked(l.id); list.appendChild(h('button', { class: 'item' + (un ? '' : ' locked'), type: 'button', style: 'text-align:left;color:inherit', onclick: () => { if (!un) { toast('Avance sur le parcours pour débloquer.'); return; } openLesson(l); } }, h('span', { class: 'ic' }, svg(un ? l.icon : 'lock')), h('span', { class: 'grow' }, h('div', { style: 'font-weight:700' }, l.title), h('div', { class: 'muted', style: 'font-size:.9rem' }, { reading: 'Texte en registre soutenu', chat: 'Chat de famille, registre familier', karaoke: 'Tu lis d’abord, tu écoutes ensuite' }[l.kind])), S.done[l.id] ? svg('check') : null)); });
+  allLessons().filter(l => ['reading', 'chat', 'karaoke'].includes(l.kind)).forEach(l => { const un = isUnlocked(l.id); list.appendChild(h('button', { class: 'item' + (un ? '' : ' locked'), type: 'button', style: 'text-align:left;color:inherit', onclick: () => { if (!un) { toast('Avance sur le parcours pour débloquer.'); return; } openLesson(l); } }, h('span', { class: 'ic' }, svg(un ? l.icon : 'lock')), h('span', { class: 'grow' }, h('div', { style: 'font-weight:700' }, l.title), h('div', { class: 'muted', style: 'font-size:.9rem' }, { reading: 'Texte en registre soutenu', chat: 'Chat de famille, registre familier', karaoke: 'Tu lis d’abord, tu écoutes ensuite' }[l.kind])), S.done[l.id] ? svg('check') : null)); });
   v.appendChild(list);
 }
 function lookup(token) {
@@ -941,8 +1007,8 @@ function wordSpans(sentence, onTap) {
 function screenTop(title, onBack) {
   return h('div', { class: 'lesson-top gutter' }, h('div', { class: 'lesson-top-inner' }, h('button', { class: 'iconbtn', type: 'button', 'aria-label': 'Retour', onclick: onBack }, svg('back')), h('div', { class: 'grow', style: 'font-weight:800' }, title), flagButton({ screen: title })));
 }
-function renderReading(l) {
-  clear(); const R = C.readings[l.reading];
+function renderReading(l, rid) {
+  clear(); const R = C.readings[rid || l.reading];
   const wrap = h('div', { class: 'read-wrap gutter' });
   wrap.append(h('div', { class: 'eyebrow' }, R.fr_title + ' · registre soutenu'), h('h2', { class: 'fa', style: 'font-size:2rem;text-align:right' }, R.title), h('p', { class: 'muted', style: 'margin:0' }, R.intro));
   const txt = h('div', { class: 'read-text' });
@@ -1013,7 +1079,7 @@ function alignWords(kws, words) {
 function renderKaraoke(l) {
   clear(); const K = C.karaoke[l.karaoke]; const T = KT[l.karaoke] || {};
   const wrap = h('div', { class: 'kara gutter' });
-  wrap.append(h('div', { class: 'eyebrow' }, 'Karaoké · ' + K.fr_title), h('h2', { class: 'fa', style: 'font-size:2rem;text-align:right' }, K.title), h('p', { class: 'muted', style: 'margin:0' }, K.intro));
+  wrap.append(h('div', { class: 'eyebrow' }, (K.label || 'Karaoké') + ' · ' + K.fr_title), h('h2', { class: 'fa', style: 'font-size:2rem;text-align:right' }, K.title), h('p', { class: 'muted', style: 'margin:0' }, K.intro));
   const lyr = h('div', { class: 'lyrics' }); wrap.appendChild(lyr);
   const clean = tok => tok.replace(/[«»:؟!.،]/g, '');
   const lines = K.lines.map((line, li) => {
@@ -1071,8 +1137,8 @@ function renderKaraoke(l) {
   function summary() {
     const good = lines.filter(L => L.good).length; const all = lines.flatMap(L => L.kws);
     setBar(h('div', { class: 'kstep' }, good + ' ligne' + (good > 1 ? 's' : '') + ' sur ' + lines.length + ' sans buter, d’après toi.'),
-      T.src ? h('button', { class: 'btn ghost', type: 'button', onclick: () => playClip(T.src, all, alignWords(all, T.words), () => {}) }, 'Écouter toute la chanson') : null,
-      h('button', { class: 'btn', type: 'button', onclick: () => { alive = false; stop(); S.done[l.id] = true; addXP(15); save(); renderEnd({ xp: 15, headline: 'Chanson lue.', tile: { label: 'Lignes sans buter', value: good + ' / ' + lines.length }, note: 'Ce chiffre vient de tes propres réponses.' }); } }, 'Terminer'));
+      T.src ? h('button', { class: 'btn ghost', type: 'button', onclick: () => playClip(T.src, all, alignWords(all, T.words), () => {}) }, K.whole || 'Écouter toute la chanson') : null,
+      h('button', { class: 'btn', type: 'button', onclick: () => { alive = false; stop(); S.done[l.id] = true; addXP(15); save(); renderEnd({ xp: 15, headline: K.done || 'Chanson lue.', tile: { label: 'Lignes sans buter', value: good + ' / ' + lines.length }, note: 'Ce chiffre vient de tes propres réponses.' }); } }, 'Terminer'));
   }
   askRead();
 }
@@ -1191,7 +1257,7 @@ function renderProfile(v) {
       S.flags.length ? h('button', { class: 'btn', type: 'button', onclick: e => copyText(flagsText(), e.currentTarget) }, 'Copier les signalements') : null,
       S.flags.length ? h('button', { class: 'btn ghost', type: 'button', onclick: () => { S.flags = []; save(); renderMain(); } }, 'Effacer les signalements') : null),
     h('div', { class: 'card stack' }, h('div', { class: 'eyebrow' }, 'Prototype'),
-      h('button', { class: 'btn ghost', type: 'button', onclick: () => { S.demo = !S.demo; save(); toast(S.demo ? 'Tout est débloqué.' : 'Parcours normal.'); renderMain(); } }, S.demo ? 'Mode démo : activé (tout débloqué)' : 'Mode démo : tout débloquer'),
+      h('button', { class: 'btn ghost', type: 'button', onclick: () => { S.demo = !S.demo; save(); toast(S.demo ? 'Tout est débloqué.' : 'Parcours normal.'); renderMain(); } }, S.demo ? 'Mode démo : activé (tout débloqué, jours en préparation visibles)' : 'Mode démo : tout débloquer et voir les jours en préparation'),
       h('button', { class: 'btn ghost', type: 'button', onclick: () => { renderOnboarding(); window.scrollTo(0, 0); } }, 'Refaire le test de départ'),
       h('button', { class: 'btn pom', type: 'button', onclick: () => { try { localStorage.removeItem('noghte_v1'); } catch (e) {} S = fresh(); render(); } }, 'Tout effacer')));
 }

@@ -90,6 +90,8 @@ for ch in C["chats"].values():
                     add(r["text"], parts[r["from"]].get("voice", "default"))
         else:
             add(m["text"], parts[m["from"]].get("voice", "default"))
+for m in C.get("mc", []):  # questions whose prompt is something heard
+    add(m.get("audio"))
 for k in C["feedback"]["good"] + C["feedback"]["bad"]:
     add(k)
 
@@ -212,6 +214,67 @@ with open(os.path.join(HERE, "content.js"), "w", encoding="utf-8") as f:
     f.write("window.AUDIO = " + json.dumps(audio_map, ensure_ascii=False) + ";\n")
     f.write("window.KARAOKE_TIMING = " + json.dumps(kt, ensure_ascii=False) + ";\n")
 print("content.js written")
+
+# check.js: every clip of the units listed in "check_units", grouped by lesson, so that a
+# speaker can listen to a whole new day once (check.html) and tick what the voice gets wrong.
+def lesson_clips(lesson):
+    out = []
+    def put(t):
+        if t and isinstance(t, str) and t in audio_map and all(t != o["t"] for o in out):
+            sp = tts_text(t)
+            out.append({"t": t, "s": sp if sp != t else "", "v": "Farid" if items.get(t) == "male" else "Dilara", "src": audio_map[t]})
+    def put_word(wid):
+        w = C["words"][wid]; put(w["fa"]); put(w.get("colloq")); put(w.get("para"))
+    for wid in lesson.get("words", []):
+        put_word(wid)
+    for e in lesson.get("exercises", []):
+        t = e["type"]
+        if t == "pair":
+            for w in C["pairs"][e["pair"]]["words"]: put(w)
+        elif t == "dots": put(C["dots"][e["item"]]["word"])
+        elif t == "fixdots": put(C["fixdots"][e["item"]]["correct"])
+        elif t == "spell": put(C["spell"][e["item"]]["word"])
+        elif t == "register_mc": put(C["register_mc"][e["item"]]["familier"]); put(C["register_mc"][e["item"]]["correct"])
+        elif t == "register_build": put(C["register_build"][e["item"]]["familier"]); put(C["register_build"][e["item"]]["answer"])
+        elif t == "explain":
+            for a, b in C["explain"][e["item"]]["examples"]: put(a); put(b)
+        elif t == "mc": put(C["mc"][e["item"]].get("audio"))
+        elif t == "build": put(C["words"][C["build"][e["item"]]["word"]]["fa"])
+        elif t in ("vocab", "vocab_check", "vocab_check_rev"): put_word(e["word"])
+    for rid in ([lesson["reading"]] if lesson.get("reading") else [v["reading"] for v in lesson.get("variants", [])]):
+        r = C["readings"][rid]
+        for para in r["paragraphs"]:
+            for s in para: put(s)
+        for q in r["questions"]: put(q["q"])
+    if lesson.get("chat"):
+        for m in C["chats"][lesson["chat"]]["script"]:
+            if "choice" in m:
+                for c in m["choice"]:
+                    put(c["text"])
+                    for r in c.get("reply", []): put(r["text"])
+            else:
+                put(m["text"])
+    if lesson.get("karaoke") and lesson["karaoke"] in kt:
+        for i, line in enumerate(C["karaoke"][lesson["karaoke"]]["lines"]):
+            if i < len(kt[lesson["karaoke"]]["lines"]):
+                sp = tts_text(line)
+                out.append({"t": line, "s": sp if sp != line else "", "v": "Dilara", "src": kt[lesson["karaoke"]]["lines"][i]["src"]})
+    return out
+
+check, seen = [], set()
+for unit in C["units"]:
+    if unit["id"] not in C.get("check_units", []):
+        continue
+    for lesson in unit["lessons"]:
+        clips = [c for c in lesson_clips(lesson) if c["t"] not in seen]
+        seen.update(c["t"] for c in clips)
+        if clips:
+            check.append({"unit": unit["title"] + " · " + unit["subtitle"], "lesson": lesson["title"], "clips": clips})
+import datetime
+with open(os.path.join(HERE, "check.js"), "w", encoding="utf-8") as f:
+    f.write("window.CHECK = " + json.dumps(check, ensure_ascii=False) + ";\n")
+    f.write("window.CHECK_BUILT = " + json.dumps(datetime.datetime.now().strftime("%Y-%m-%d %H:%M")) + ";\n")
+print("check.js written:", sum(len(g["clips"]) for g in check), "clips to listen to")
 
 # artifact.html: the page body only, for publishing as a claude.ai artifact (which adds its own document skeleton)
 with open(os.path.join(HERE, "index.html"), encoding="utf-8") as f:
