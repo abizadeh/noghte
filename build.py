@@ -32,12 +32,16 @@ def tts_voice(text):
     v = TTS.get(text)
     return v.get("voice") if isinstance(v, dict) else None
 
-_keys = sorted(TTS, key=len, reverse=True)
+# An entry with "solo": true is used only when the clip is exactly that word. Sentences that
+# contain the word are left alone, since context already tells the voice how to read it.
+_keys = sorted((k for k in TTS if not (isinstance(TTS[k], dict) and TTS[k].get("solo"))), key=len, reverse=True)
 _pat = re.compile("(?<![؀-ۿ])(" + "|".join(re.escape(k) for k in _keys) + ")(?![؀-ۿ])") if _keys else None
 
 def tts_text(text):
     t = text
-    if _pat:
+    if text in TTS:
+        t = tts_spelling(text)
+    elif _pat:
         t = _pat.sub(lambda m: tts_spelling(m.group(1)), t)
     t = re.sub(ZWNJ + "(?=ا)", " ", t)
     t = re.sub(r"[\U0001F300-\U0001FAFF☀-➿]", "", t)  # emoji

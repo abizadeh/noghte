@@ -10,9 +10,12 @@ VOICES = {"dilara": "fa-IR-DilaraNeural", "farid": "fa-IR-FaridNeural"}
 
 # word shown to the learner -> candidate (text the voice reads, voice)
 GROUPS = [
-    # round 2: the h of گیاه must be heard before خوار
-    ("گیاه‌خوار", "giyāh-khār", [("گیاهْ‌خوار", "dilara"), ("گیاهْ خوار", "dilara"), ("گیاح‌خوار", "dilara"), ("گیاح خوار", "dilara"), ("گیاهْ‌خوار", "farid"), ("گیاح‌خوار", "farid"), ("گیاهه خوار", "dilara")]),
-    ("من گیاه‌خوارم.", "man giyāh-khāram", [("من گیاهْ‌خوارَم.", "dilara"), ("من گیاح‌خوارَم.", "dilara"), ("من گیاهْ‌خوارَم.", "farid"), ("من گیاح‌خوارَم.", "farid")]),
+    # round 3: flags from the mehmooni lesson. Target readings: rasm, dard nakone, khāle (aunt), amme, dokhtar-amu
+    ("رسم ایرانی", "rasm-e irāni (pas « resm »)", [("رسم ایرانی", "dilara"), ("رَسمِ ایرانی", "dilara"), ("رَسْمِ ایرانی", "dilara"), ("رَسم ایرانی", "dilara"), ("رَسْم ایرانی", "dilara"), ("رَسمِ ایرانی", "farid")]),
+    ("دست شما درد نکنه", "dast-e shomā dard nakone (pas « nakona »)", [("دست شما درد نکنه", "dilara"), ("دَستِ شُما دَرد نَکُنه", "dilara"), ("دَستِ شُما دَرد نَکُنِه", "dilara"), ("دست شما درد نَکُنِه", "dilara"), ("دَستِ شُما دَرد نَکُنِه", "farid"), ("دست شما درد نکنه", "farid")]),
+    ("خاله", "khāle, la tante (pas « c'est un grain de beauté »)", [("خاله", "dilara"), ("خالِه", "dilara"), ("خاله", "farid"), ("خالِه", "farid"), ("خالهٔ من", "dilara"), ("خاله جان", "dilara")]),
+    ("عمه", "amme, avec le m appuyé", [("عمه", "dilara"), ("عَمّه", "dilara"), ("عَمِّه", "dilara"), ("عَمْمه", "dilara"), ("عَمّه", "farid"), ("عَمِّه", "farid")]),
+    ("دخترعمو", "dokhtar-amu", [("دخترعمو", "dilara"), ("دُختَرعَمو", "dilara"), ("دُختَر عَمو", "dilara"), ("دختر عمو", "dilara"), ("دُختَر عَمو", "farid"), ("دختر عمو", "farid")]),
 ]
 
 def h(s):
