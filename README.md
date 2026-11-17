@@ -37,9 +37,26 @@ python build.py
 
 Copier le dossier sur n'importe quel hébergement statique (GitHub Pages, Netlify, un serveur web). Ouvrir l'adresse dans Safari, puis Partager › Sur l'écran d'accueil. L'application s'ouvre alors en plein écran avec son icône. La progression est enregistrée sur l'appareil.
 
+## Prononciation : la carte `tts` et le labo
+
+La voix de synthèse devine mal certaines voyelles courtes. Le texte affiché à l'apprenant reste toujours l'orthographe normale ; seule la voix reçoit une autre version.
+
+- `content.json` › `tts` : pour un mot, soit un texte de remplacement (`"لبنیات": "لَبَنِیّات"`), soit un objet `{"text": ..., "voice": "male", "solo": true}`. `voice` choisit Farid pour le mot lu seul. `solo` limite l'entrée au mot lu seul ; les phrases qui le contiennent ne sont pas touchées.
+- `words.<id>.para_voice` : voix de la phrase de définition d'un mot (ex. تعارف, lue par Farid).
+- `build.py` régénère uniquement les clips dont le texte lu ou la voix a changé (`audio/manifest.json`), et versionne les URL audio pour éviter les caches.
+- `lab.html` + `lab_build.py` : le labo d'écoute. On met dans `GROUPS` plusieurs variantes d'un mot (voyelles, voix), on augmente `ROUND`, on lance `python lab_build.py`, on pousse. Un locuteur écoute sur `/lab.html?r=<ROUND>`, coche la meilleure variante, copie ses choix. Ces choix vont dans la carte `tts`.
+
+Ce qu'on a appris en quatre séries :
+
+- Partir de l'orthographe simple. Ajouter des voyelles aide une fois sur deux et casse l'autre fois (بنابراین, منتظر, دخترعمو étaient justes sans voyelles).
+- Pour un mot isolé mal accentué (خونه, خاله), la voix de Farid sans retouche marche souvent mieux.
+- Un sukun bloque une voyelle parasite (کَشْک). Doubler la lettre force une géminée (عَمْمه).
+- Si la voix a une lecture fausse figée pour un mot (رسم lu « resm »), le réécrire avec une lettre homophone (رَصْمِ) l'oblige à suivre les voyelles.
+- Rien n'est vérifiable sans oreille : chaque changement passe par le labo ou par un signalement dans l'app (drapeau en haut de chaque écran, liste dans Profil).
+
 ## Limites connues du prototype
 
 - Les voix sont synthétiques. Une version publique devrait utiliser des enregistrements ou l'API Azure officielle.
 - Pas de compte ni de synchronisation : la progression reste sur l'appareil.
-- Les intérêts choisis au départ ne changent pas encore les textes.
+- Les intérêts (modifiables dans Profil) ne changent pas encore les textes.
 - Les paroles du karaoké sont un texte original (pas de licence à gérer).

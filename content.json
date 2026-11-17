@@ -42,7 +42,7 @@
 
     "mehmani":    { "fa": "مهمانی", "fr": "fête, réception (mehmooni)", "colloq": "مهمونی", "para": "وقتی مهمان‌ها به خانه‌ی کسی می‌روند و با هم غذا می‌خورند.", "rank": 2700 },
     "mehman":     { "fa": "مهمان", "fr": "invité, invitée", "colloq": "مهمون", "rank": 1200 },
-    "taarof":     { "fa": "تعارف", "fr": "taarof (politesse rituelle)", "para": "رسم ایرانی: چیزی را با ادب پیشنهاد می‌کنی یا با ادب رد می‌کنی.", "rank": 4000 },
+    "taarof":     { "fa": "تعارف", "fr": "taarof (politesse rituelle)", "para": "رسم ایرانی: چیزی را با ادب پیشنهاد می‌کنی یا با ادب رد می‌کنی.", "para_voice": "male", "rank": 4000 },
     "befarmayid": { "fa": "بفرمایید", "fr": "je vous en prie, servez-vous", "para": "با ادب به کسی می‌گویند: بیا، بنشین، بخور.", "rank": 2100 },
     "nush_e_jan": { "fa": "نوش جان", "fr": "bon appétit", "para": "وقتی کسی غذا می‌خورد، این را به او می‌گویند.", "rank": 5000 },
     "dast_dard_nakonad": { "fa": "دست شما درد نکند", "fr": "merci (pour ce que vous avez fait)", "colloq": "دست شما درد نکنه", "para": "تشکر از کسی که برایت کاری کرده است.", "rank": 5000 },

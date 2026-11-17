@@ -58,7 +58,7 @@ def add(text, voice="default"):
     items.setdefault(text, voice)
 
 for w in C["words"].values():
-    add(w["fa"]); add(w.get("para")); add(w.get("colloq"))
+    add(w["fa"]); add(w.get("para"), w.get("para_voice", "default")); add(w.get("colloq"))
 for p in C["pairs"]:
     add(p["words"][0]); add(p["words"][1])
 for s in C["spell"]:
