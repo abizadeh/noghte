@@ -11,22 +11,20 @@ VOICES = {"dilara": "fa-IR-DilaraNeural", "farid": "fa-IR-FaridNeural"}
 # word shown to the learner -> candidates. A candidate is (text the voice reads, voice), or
 # (parts, voice, note) where parts is a sentence with raised stretches (see raised.py) and note
 # says in French what was raised.
-ROUND = 9  # bump when the candidates change; shown at the top of lab.html
-AYA, MI, MID = 'آیا', 'می‌شود', ' تخفیف بِدَ'
-END50, END30 = ('هید؟', '+50%'), ('هید؟', '+30%')
+ROUND = 10  # bump when the candidates change; shown at the top of lab.html
+OPEN = ('آیا می‌شود', '+35%')   # round 9 B: the opening clearly higher
 GROUPS = [
-    # round 9: after round 8 (D best, none great). The opening word sounded like an assertion,
-    # and the sentence should start with آیا. Farid, last syllable raised as in round 8 D.
+    # round 10: round 9 B was the best, but every round 9 reading said "bedhid" for بدهید.
+    # Measured: splitting the word as بِدَ + هید drops the middle vowel (two vowel peaks instead
+    # of three). Splitting after بِ, or not splitting, keeps be-da-hid.
     ('آیا می‌شود تخفیف بدهید؟',
-     "le ton d'une question, avec آیا en tête et la voix de Farid (ton choix D). Cette fois le début de la phrase est touché aussi : "
-     "dit plus haut (A, B, C, E) ou avec la fin de می‌شود qui monte (D). F sert de repère : la fin de la série 8, sans toucher au début. "
-     "Si aucune n'est vraiment bonne, la phrase reste sans son",
-     [([(AYA + ' ' + MI, '+20%'), MID, END50], 'farid', 'début un peu plus haut, dernière syllabe haute'),
-      ([(AYA + ' ' + MI, '+35%'), MID, END50], 'farid', 'début nettement plus haut, dernière syllabe haute'),
-      ([AYA + ' ', (MI, '+35%'), MID, END50], 'farid', 'seul می‌شود plus haut, dernière syllabe haute'),
-      ([AYA + ' می‌شَ', ('وَد', '+35%'), MID, END50], 'farid', 'la fin de می‌شود monte, dernière syllabe haute'),
-      ([(AYA + ' ' + MI, '+25%'), MID, END30], 'farid', 'début plus haut, dernière syllabe un peu haute'),
-      ([AYA + ' ' + MI + MID, END50], 'farid', 'repère : début non touché, dernière syllabe haute')]),
+     "le début de la série 9 B (Farid, début nettement plus haut), avec بدهید dit en entier. Tu avais raison : mes mesures montrent que la série 9 "
+     "avalait une syllabe (« bedhid »). Ces quatre-ci gardent les trois syllabes be-da-hid. A et B : le mot est coupé après بِ pour la voix et « dahid » est dit plus haut. "
+     "C et D : le mot n'est pas coupé, il est dit plus haut en entier. La fin monte moins que dans la série 9 : c'est le prix pour garder le mot intact",
+     [([OPEN, ' تخفیف بِ', ('دَهید؟', '+50%')], 'farid', '« dahid » plus haut'),
+      ([OPEN, ' تخفیف بِ', ('دَهید؟', '+50%', '-15%')], 'farid', '« dahid » plus haut et plus lent'),
+      ([OPEN, ' تخفیف ', ('بدهید؟', '+50%')], 'farid', 'tout le dernier mot nettement plus haut'),
+      ([OPEN, ' تخفیف ', ('بدهید؟', '+35%')], 'farid', 'tout le dernier mot un peu plus haut')]),
 ]
 
 def h(s):
