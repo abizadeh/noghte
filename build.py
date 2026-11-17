@@ -86,6 +86,8 @@ for ch in C["chats"].values():
         if "choice" in m:
             for c in m["choice"]:
                 add(c["text"])
+                for r in c.get("reply", []):  # the cousins' answer to that particular choice
+                    add(r["text"], parts[r["from"]].get("voice", "default"))
         else:
             add(m["text"], parts[m["from"]].get("voice", "default"))
 for k in C["feedback"]["good"] + C["feedback"]["bad"]:
@@ -125,26 +127,52 @@ async def gen_one(sem, text, voice):
                 await asyncio.sleep(1.5 * (attempt + 1))
         print("FAILED:", text)
 
-async def gen_karaoke(kid, k):
+async def tts_with_words(spoken, voice, path):
+    """Write one slow clip and return the time of each word in it."""
     import edge_tts
-    text = "\n".join(k["lines"]); spoken = tts_text(text)
+    for attempt in range(4):
+        try:
+            comm = edge_tts.Communicate(spoken, VOICES[voice], rate="-12%", boundary="WordBoundary")
+            words = []
+            with open(path, "wb") as f:
+                async for chunk in comm.stream():
+                    if chunk["type"] == "audio":
+                        f.write(chunk["data"])
+                    elif chunk["type"] == "WordBoundary":
+                        words.append({"t": chunk["offset"] / 1e7, "d": chunk["duration"] / 1e7, "w": chunk["text"]})
+            if os.path.getsize(path) > 1000 and words:
+                return words
+        except Exception:  # noqa
+            pass
+        await asyncio.sleep(1.5 * (attempt + 1))
+    print("FAILED karaoke clip:", spoken)
+    return []
+
+async def gen_karaoke(kid, k):
+    # One clip for the whole song, plus one clip per line: the learner reads a line, then hears it.
+    spoken = tts_text("\n".join(k["lines"]))
     path = os.path.join(AUDIO_DIR, "karaoke_" + kid + ".mp3")
     tpath = os.path.join(AUDIO_DIR, "karaoke_" + kid + ".json")
-    if os.path.exists(path) and os.path.exists(tpath):
+    old = {}
+    if os.path.exists(tpath):
         with open(tpath, encoding="utf-8") as f:
             old = json.load(f)
-        if isinstance(old, dict) and old.get("tts") == spoken:
-            return
-    comm = edge_tts.Communicate(spoken, VOICES["default"], rate="-12%", boundary="WordBoundary")
-    words = []
-    with open(path, "wb") as f:
-        async for chunk in comm.stream():
-            if chunk["type"] == "audio":
-                f.write(chunk["data"])
-            elif chunk["type"] == "WordBoundary":
-                words.append({"t": chunk["offset"] / 1e7, "d": chunk["duration"] / 1e7, "w": chunk["text"]})
+        if not isinstance(old, dict):
+            old = {}
+    data = {"tts": spoken, "words": old.get("words") or [], "lines": []}
+    if not (os.path.exists(path) and old.get("tts") == spoken and data["words"]):
+        data["words"] = await tts_with_words(spoken, "default", path)
+    old_lines = old.get("lines") or []
+    for i, line in enumerate(k["lines"]):
+        sp = tts_text(line)
+        lpath = os.path.join(AUDIO_DIR, "karaoke_%s_%d.mp3" % (kid, i))
+        prev = old_lines[i] if i < len(old_lines) else None
+        if prev and prev.get("tts") == sp and prev.get("words") and os.path.exists(lpath) and os.path.getsize(lpath) > 1000:
+            data["lines"].append(prev)
+        else:
+            data["lines"].append({"tts": sp, "words": await tts_with_words(sp, "default", lpath)})
     with open(tpath, "w", encoding="utf-8") as f:
-        json.dump({"tts": spoken, "words": words}, f, ensure_ascii=False)
+        json.dump(data, f, ensure_ascii=False)
 
 async def main():
     sem = asyncio.Semaphore(4)
@@ -173,8 +201,11 @@ for kid in C["karaoke"]:
     if os.path.exists(tpath):
         with open(tpath, encoding="utf-8") as f:
             data = json.load(f)
-        words = data["words"] if isinstance(data, dict) else data
-        kt[kid] = {"src": "audio/karaoke_" + kid + ".mp3?v=" + h(data.get("tts", "") if isinstance(data, dict) else "")[:6], "words": words}
+        if not isinstance(data, dict):
+            data = {"tts": "", "words": data, "lines": []}
+        kt[kid] = {"src": "audio/karaoke_" + kid + ".mp3?v=" + h(data.get("tts", ""))[:6], "words": data["words"],
+                   "lines": [{"src": "audio/karaoke_%s_%d.mp3?v=%s" % (kid, i, h(ln.get("tts", ""))[:6]), "words": ln["words"]}
+                             for i, ln in enumerate(data.get("lines", []))]}
 
 with open(os.path.join(HERE, "content.js"), "w", encoding="utf-8") as f:
     f.write("window.CONTENT = " + json.dumps(C, ensure_ascii=False) + ";\n")

@@ -443,29 +443,36 @@
       "intro": "Un chat avec les cousins. Ici, on écrit comme on parle : c'est le registre familier, mais en alphabet persan. Rien n’est lu tout seul : touche un message pour l’entendre et voir la traduction.",
       "participants": { "sara": { "name": "سارا", "voice": "default", "color": "a" }, "amir": { "name": "امیر", "voice": "male", "color": "b" } },
       "script": [
-        { "from": "sara", "text": "سلام! رسیدی؟ 😄", "fr": "Salut ! T'es arrivé(e) ?" },
-        { "from": "amir", "text": "خوش اومدی به تهرون!", "fr": "Bienvenue à Téhéran !", "note": "اومدی = آمدی ; تهرون = تهران" },
+        {"from": "sara", "text": "سلام! رسیدی؟ 😄", "fr": "Salut ! T'es arrivé(e) ?"},
+        {"from": "amir", "text": "خوش اومدی به تهرون!", "fr": "Bienvenue à Téhéran !", "note": "اومدی = آمدی ; تهرون = تهران"},
         { "choice": [
-          { "text": "سلام! آره، تازه رسیدم. چقدر گرمه!", "fr": "Salut ! Oui, je viens d'arriver. Qu'est-ce qu'il fait chaud !" },
-          { "text": "مرسی! خیلی خوشحالم که اینجام.", "fr": "Merci ! Je suis trop content(e) d'être là." }
+            {"text": "سلام! آره، تازه رسیدم. چقدر گرمه!", "fr": "Salut ! Oui, je viens d'arriver. Qu'est-ce qu'il fait chaud !",
+              "reply": [ {"from": "amir", "text": "آره، هوای تهرون همینه دیگه 😅", "fr": "Ouais, c'est ça, le temps de Téhéran.", "note": "همینه = همین است"} ] },
+            {"text": "مرسی! خیلی خوشحالم که اینجام.", "fr": "Merci ! Je suis trop content(e) d'être là.",
+              "reply": [ {"from": "sara", "text": "ما هم خیلی خوشحالیم! دلمون برات تنگ شده بود.", "fr": "Nous aussi, on est trop contents ! Tu nous avais manqué.", "note": "دلمون = دلمان ; برات = برایت"} ] }
         ] },
-        { "from": "sara", "text": "فردا شب مهمونی خونه‌ی خاله‌ست. میای؟", "fr": "Demain soir, il y a une mehmooni chez khale. Tu viens ?", "note": "مهمونی = مهمانی ; خونه = خانه ; ـست = است" },
+        {"from": "sara", "text": "فردا شب مهمونی خونه‌ی خاله‌ست. میای؟", "fr": "Demain soir, il y a une mehmooni chez khale. Tu viens ?", "note": "مهمونی = مهمانی ; خونه = خانه ; ـست = است"},
         { "choice": [
-          { "text": "آره حتماً! ساعت چند؟", "fr": "Oui, bien sûr ! À quelle heure ?" },
-          { "text": "معلومه که میام. چی بیارم؟", "fr": "Évidemment que je viens. J'apporte quoi ?" }
+            {"text": "آره حتماً! ساعت چند؟", "fr": "Oui, bien sûr ! À quelle heure ?",
+              "reply": [ {"from": "amir", "text": "ساعت ۸.", "fr": "À 8 h."} ] },
+            {"text": "معلومه که میام. چی بیارم؟", "fr": "Évidemment que je viens. J'apporte quoi ?",
+              "reply": [ {"from": "amir", "text": "هیچی نیار، فقط خودت بیا! ساعت ۸ شروع می‌شه.", "fr": "N'apporte rien, viens juste toi ! Ça commence à 8 h.", "note": "نیار = نیاور ; می‌شه = می‌شود"} ] }
         ] },
-        { "from": "amir", "text": "ساعت ۸. خاله گفته برات غذای بدون گوشت درست می‌کنه 🌱", "fr": "À 8 h. Khale a dit qu'elle te prépare un plat sans viande.", "note": "برات = برایت ; می‌کنه = می‌کند" },
+        {"from": "sara", "text": "راستی، خاله گفته برات غذای بدون گوشت درست می‌کنه 🌱", "fr": "Au fait, khale a dit qu'elle te prépare un plat sans viande.", "note": "برات = برایت ; می‌کنه = می‌کند"},
         { "choice": [
-          { "text": "وای چه خوب! دست خاله درد نکنه.", "fr": "Oh, trop bien ! Merci à khale (litt. que sa main ne fasse pas mal)." },
-          { "text": "چی درست می‌کنه؟", "fr": "Elle prépare quoi ?" }
+            {"text": "وای چه خوب! دست خاله درد نکنه.", "fr": "Oh, trop bien ! Merci à khale (litt. que sa main ne fasse pas mal).",
+              "reply": [ {"from": "sara", "text": "خواهش می‌کنم! می‌خوای بدونی چی درست می‌کنه؟", "fr": "De rien ! Tu veux savoir ce qu'elle prépare ?", "note": "می‌خوای = می‌خواهی ; بدونی = بدانی"} ] },
+            {"text": "چی درست می‌کنه؟", "fr": "Elle prépare quoi ?" }
         ] },
-        { "from": "sara", "text": "کشک بادمجون و سالاد شیرازی. ولی کشک داره ها، کشک از شیره.", "fr": "Kashk-e bademjan et salade shirazi. Mais attention, il y a du kashk, et le kashk, c'est fait avec du lait.", "note": "بادمجون = بادمجان ; داره = دارد ; شیره = شیر است" },
+        {"from": "amir", "text": "کشک بادمجون و سالاد شیرازی. ولی کشک داره ها، کشک از شیره.", "fr": "Kashk-e bademjan et salade shirazi. Mais attention, il y a du kashk, et le kashk, c'est fait avec du lait.", "note": "بادمجون = بادمجان ; داره = دارد ; شیره = شیر است"},
         { "choice": [
-          { "text": "من وگانم، کشک نمی‌خورم. ولی سالاد که هست!", "fr": "Je suis végane, je ne mange pas de kashk. Mais il y a la salade !" },
-          { "text": "عیب نداره، من فقط گوشت نمی‌خورم. لبنیات اوکیه.", "fr": "Pas grave, moi je ne mange juste pas de viande. Les produits laitiers, ça va." }
+            {"text": "من وگانم، کشک نمی‌خورم. ولی سالاد که هست!", "fr": "Je suis végane, je ne mange pas de kashk. Mais il y a la salade !",
+              "reply": [ {"from": "amir", "text": "آها، باشه. به خاله می‌گم یه غذای بدون کشک هم درست کنه.", "fr": "Ah, OK. Je dis à khale de préparer aussi un plat sans kashk.", "note": "می‌گم = می‌گویم ; یه = یک"} ] },
+            {"text": "عیب نداره، من فقط گوشت نمی‌خورم. لبنیات اوکیه.", "fr": "Pas grave, moi je ne mange juste pas de viande. Les produits laitiers, ça va.",
+              "reply": [ {"from": "amir", "text": "پس کشک بادمجون مال خودته! 😋", "fr": "Alors le kashk-e bademjan, il est pour toi !", "note": "خودته = خودت است"} ] }
         ] },
-        { "from": "amir", "text": "باشه، به خاله می‌گم. فقط تعارف نکن ها، خاله عاشق اینه که مهمون زیاد بخوره 😂", "fr": "OK, je le dis à khale. Mais ne fais pas de taarof, khale adore quand l'invité mange beaucoup.", "note": "می‌گم = می‌گویم ; اینه = این است ; مهمون = مهمان ; بخوره = بخورد" },
-        { "from": "sara", "text": "تا فردا! 👋", "fr": "À demain !" }
+        {"from": "sara", "text": "فقط تعارف نکن ها! خاله عاشق اینه که مهمون زیاد بخوره 😂", "fr": "Mais ne fais pas de taarof ! Khale adore quand l'invité mange beaucoup.", "note": "اینه = این است ; مهمون = مهمان ; بخوره = بخورد"},
+        {"from": "amir", "text": "تا فردا! 👋", "fr": "À demain !"}
       ]
     }
   },
@@ -474,7 +481,7 @@
     "montreal": {
       "title": "از مونترال تا تهران",
       "fr_title": "De Montréal à Téhéran",
-      "intro": "Les paroles défilent avec la voix. Lis en même temps. Touche un mot après l'écoute pour le comprendre.",
+      "intro": "Lis chaque ligne à voix haute avant de l'entendre, puis dis si tu l'avais bien lue. À la fin, tu peux écouter toute la chanson. Les mots d'une ligne déjà lue s'ouvrent au toucher.",
       "lines": [
         "از مونترال تا تهران",
         "یه راه دور و دراز",
@@ -498,6 +505,22 @@
       "notes": { "یه": "= یک", "چمدونم": "= چمدانم", "تو": "(ici) dans", "نون": "= نان", "خونه‌ی": "= خانه‌ی", "می‌ده": "= می‌دهد", "صدام": "= صدایم", "می‌زنه": "= می‌زند", "دم": "دم کشیدن = infuser (le thé)", "کشیده": "a infusé", "سنگک": "pain plat cuit sur des cailloux" }
     }
   },
+
+  "rush_base": [
+    {"fa": "نان", "fr": "pain"}, {"fa": "پنیر", "fr": "fromage"}, {"fa": "چای", "fr": "thé"}, {"fa": "خانه", "fr": "maison"}, {"fa": "بابا", "fr": "papa"},
+    {"fa": "دست", "fr": "main"}, {"fa": "سیب", "fr": "pomme"}, {"fa": "شیر", "fr": "lait"}, {"fa": "آب", "fr": "eau"}, {"fa": "پدر", "fr": "père"},
+    {"fa": "مادر", "fr": "mère"}, {"fa": "برادر", "fr": "frère"}, {"fa": "خواهر", "fr": "sœur"}, {"fa": "دختر", "fr": "fille"}, {"fa": "پسر", "fr": "garçon"},
+    {"fa": "بچه", "fr": "enfant"}, {"fa": "کتاب", "fr": "livre"}, {"fa": "مدرسه", "fr": "école"}, {"fa": "دوست", "fr": "ami"}, {"fa": "بزرگ", "fr": "grand"},
+    {"fa": "کوچک", "fr": "petit"}, {"fa": "سفید", "fr": "blanc"}, {"fa": "سبز", "fr": "vert"}, {"fa": "زرد", "fr": "jaune"}, {"fa": "قرمز", "fr": "rouge"},
+    {"fa": "شب", "fr": "nuit"}, {"fa": "روز", "fr": "jour"}, {"fa": "امروز", "fr": "aujourd'hui"}, {"fa": "فردا", "fr": "demain"}, {"fa": "ماشین", "fr": "voiture"},
+    {"fa": "پنجره", "fr": "fenêtre"}, {"fa": "میز", "fr": "table"}, {"fa": "صندلی", "fr": "chaise"}, {"fa": "برنج", "fr": "riz"}, {"fa": "میوه", "fr": "fruit"},
+    {"fa": "خیار", "fr": "concombre"}, {"fa": "پیاز", "fr": "oignon"}, {"fa": "بادمجان", "fr": "aubergine"}, {"fa": "نمک", "fr": "sel"}, {"fa": "شیرین", "fr": "sucré"},
+    {"fa": "باران", "fr": "pluie"}, {"fa": "برف", "fr": "neige"}, {"fa": "تابستان", "fr": "été"}, {"fa": "زمستان", "fr": "hiver"}, {"fa": "گربه", "fr": "chat"},
+    {"fa": "درخت", "fr": "arbre"}, {"fa": "چشم", "fr": "œil"}, {"fa": "دندان", "fr": "dent"}, {"fa": "زبان", "fr": "langue"}, {"fa": "تهران", "fr": "Téhéran"},
+    {"fa": "ایران", "fr": "Iran"}, {"fa": "فارسی", "fr": "persan"}, {"fa": "سلام", "fr": "bonjour"}, {"fa": "خداحافظ", "fr": "au revoir"}, {"fa": "مرسی", "fr": "merci"},
+    {"fa": "خوب", "fr": "bien"}, {"fa": "گرم", "fr": "chaud"}, {"fa": "سرد", "fr": "froid"}, {"fa": "شکلات", "fr": "chocolat"}, {"fa": "پرتقال", "fr": "orange"},
+    {"fa": "انگور", "fr": "raisin"}, {"fa": "هندوانه", "fr": "pastèque"}, {"fa": "گوجه", "fr": "tomate"}, {"fa": "سیب‌زمینی", "fr": "pomme de terre"}, {"fa": "نوشابه", "fr": "boisson gazeuse"}
+  ],
 
   "cat_lines": [
     "Je ne te force pas. (Je te force un peu.)",

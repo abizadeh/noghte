@@ -37,6 +37,14 @@ python build.py
 
 Copier le dossier sur n'importe quel hébergement statique (GitHub Pages, Netlify, un serveur web). Ouvrir l'adresse dans Safari, puis Partager › Sur l'écran d'accueil. L'application s'ouvre alors en plein écran avec son icône. La progression est enregistrée sur l'appareil.
 
+## Mécanismes ajoutés après les premiers retours (novembre 2026)
+
+- **Reprise d'une leçon.** Quitter une leçon en route garde la place (`S.resume[id]` : exercices restants, exercices à refaire, score). Le parcours affiche « Reprendre » et propose de reprendre ou de recommencer. Si la liste d'exercices d'une leçon change, la reprise enregistrée est ignorée.
+- **Chat à embranchements.** Dans `chats.<id>.script`, chaque option d'un `choice` peut porter `"reply": [ {from, text, fr, note} ]` : ces lignes répondent à ce choix précis, puis le fil commun reprend. Écrire le fil commun pour qu'il fonctionne après n'importe quelle réponse.
+- **Karaoké : lire d'abord.** L'apprenant lit une ligne à voix haute, l'écoute, puis se note lui-même (« sans buter » ou « j'ai buté »). La note ne change pas les XP. `build.py` génère un clip par ligne (`audio/karaoke_<id>_<n>.mp3`) en plus du clip complet. La reconnaissance vocale a été écartée pour l'instant : la dictée persane n'est pas fiable sur iPhone et il faudrait envoyer la voix des enfants à un service externe.
+- **Dot Rush.** Le jeu utilise `rush_base` (mots du quotidien connus à l'oral, avec leur sens) plus les mots appris en leçon, jamais les mots des leçons non faites. Les mots sont distribués comme un paquet de cartes (pas de répétition avant la fin du paquet). Un mot raté revient quatre tours plus tard, puis plus souvent aux parties suivantes, jusqu'à trois bonnes réponses de suite (`S.rush.w`, boîtes 0 à 3). Le jeu retient aussi les familles de lettres et les paires confondues (`S.rush.f`, `S.rush.c`) pour choisir la lettre à trouver et les mauvaises réponses proposées. Le sens du mot est affiché sous le mot, car deux pointages différents donnent parfois deux vrais mots (خاله et چاله).
+- **Écrans de fin honnêtes.** Une précision n'est affichée que si quelque chose a été noté. Le chat affiche le nombre de messages lus, le karaoké les lignes lues sans buter d'après l'apprenant.
+
 ## Règles pour les nouvelles leçons (retours des enfants)
 
 - **Leçons courtes.** Une leçon = 8 à 12 exercices, 3 à 4 minutes, 5 mots nouveaux au maximum. Retour d'un des enfants : devant une leçon longue comme La mehmooni (14 mots, 24 exercices), il se dit « je n'ai peut-être pas le temps » et ne la commence pas. Mieux vaut deux ou trois petites leçons sur le même thème.
