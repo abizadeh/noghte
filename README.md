@@ -91,7 +91,7 @@ Autres réglages de la voix dans `content.json` :
 - `tts_frozen` : lectures figées de clips déjà écoutés, pour qu'une correction des règles de `build.py` ne les modifie pas.
 - `build.py` supprime les clips qu'aucun texte n'utilise plus.
 
-Ce qu'on a appris en quatre séries :
+Ce qu'on a appris au fil des séries :
 
 - Partir de l'orthographe simple. Ajouter des voyelles aide une fois sur deux et casse l'autre fois (بنابراین, منتظر, دخترعمو étaient justes sans voyelles).
 - Pour un mot isolé mal accentué (خونه, خاله), la voix de Farid sans retouche marche souvent mieux.
@@ -103,6 +103,7 @@ Ce qu'on a appris en quatre séries :
 - Un ezafé parasite se supprime avec une virgule pour la voix (شیرینیش، گیاهی ; انار کیلویی، چند است).
 - Pour un mot isolé mal accentué, la voix de Farid sans retouche a gagné six fois sur neuf à la série 6.
 - La poésie classique ne passe pas en voix de synthèse : il faut un lecteur humain.
+- Le ton des questions fermées (série 8). Mesuré sur tous les clips de questions : la voix ne finit jamais haut, la hauteur redescend toujours. Sur une question soutenue (می‌شود تخفیف بدهید؟) elle redescend autant que dans une affirmation. Ni آیا, ni la ponctuation, ni لطفاً, ni un clip coupé avant « یا نه » n'y changent rien. Les études sur l'intonation du persan (Sadat-Tehrani 2011 ; Sadeghi 2021) décrivent une fin haute après un creux, avec un dernier accent plus haut. Le service refuse une courbe de hauteur, mais accepte deux blocs côte à côte : `twopart.py` dit la fin de la phrase plus haut (tout le dernier mot, ou sa dernière syllabe : `بِدَ|هید؟`). Dans `lab_build.py`, une variante s'écrit alors `(texte avec |, voix, hauteur[, vitesse])`. `build.py` ne connaît pas encore cette forme : à ajouter si une variante est retenue.
 - Rien n'est vérifiable sans oreille : chaque changement passe par le labo ou par un signalement dans l'app (drapeau en haut de chaque écran, liste dans Profil).
 
 ## Limites connues du prototype
