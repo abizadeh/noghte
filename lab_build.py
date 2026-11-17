@@ -9,11 +9,13 @@ os.makedirs(OUT, exist_ok=True)
 VOICES = {"dilara": "fa-IR-DilaraNeural", "farid": "fa-IR-FaridNeural"}
 
 # word shown to the learner -> candidate (text the voice reads, voice)
-ROUND = 4  # bump when the candidates change; shown at the top of lab.html
+ROUND = 5  # bump when the candidates change; shown at the top of lab.html
 GROUPS = [
-    # round 4: رسم must be read "rasm". Round 3 (plain, رَسمِ, رَسْمِ, رَسم, رَسْم) all failed.
-    ("رسم ایرانی", "rasm-e irāni : nouvelles astuces", [("رَصْمِ ایرانی", "dilara"), ("رَثْمِ ایرانی", "dilara"), ("رَصم ایرانی", "dilara"), ("رسمِ ایرانی", "dilara"), ("رَصْمِ ایرانی", "farid"), ("رسم ایرانی", "farid")]),
-    ("رسم ایرانی", "si rien ne marche : une autre formulation", [("رسم و رسوم ایرانی", "dilara"), ("عادت ایرانی", "dilara"), ("آداب ایرانی", "dilara"), ("سُنَّتِ ایرانی", "dilara"), ("فرهنگ ایرانی", "dilara")]),
+    # round 5: the linking e in the karaoke line, and colloquial -o read as "u"
+    ("بوی نون سنگک می‌ده", "bu-ye nun-e sangak mide (avec le « e » entre nun et sangak)", [("بوی نون سَنگَک می‌ده", "dilara"), ("بوی نونِ سَنگَک می‌ده", "dilara"), ("بویِ نونِ سَنگَک می‌ده", "dilara"), ("بوی نونِ سنگک می‌ده", "dilara"), ("بوی نونه سَنگَک می‌ده", "dilara"), ("بویه نونه سَنگَک می‌ده", "dilara")]),
+    ("کتابو", "ketâbo (pas « ketâbu »)", [("کِتابو", "dilara"), ("کِتابُ", "dilara"), ("کتابُ", "dilara"), ("کتابو", "dilara"), ("کِتابُ", "farid"), ("کتابو", "farid")]),
+    ("اینو", "ino : à vérifier, même cas que ketâbo. A est la version actuelle", [("اینو", "dilara"), ("اینُ", "dilara"), ("اینُ", "farid"), ("اینو", "farid")]),
+    ("اینا رو نمی‌خوام.", "inâ ro nemikhâm : à vérifier, « ro » et pas « ru ». A est la version actuelle", [("اینا رو نمی‌خوام.", "dilara"), ("اینا رُ نمی‌خوام.", "dilara"), ("اینارو نمی‌خوام.", "dilara"), ("اینا رُو نمی‌خوام.", "dilara")]),
 ]
 
 def h(s):
